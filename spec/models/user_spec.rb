@@ -9,6 +9,7 @@ RSpec.describe User, type: :model do
   it { should respond_to(:password) }
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:auth_token) }
+  it { should respond_to(:credentials) }
 
   it { should be_valid }
 
@@ -32,4 +33,21 @@ RSpec.describe User, type: :model do
       expect(@user.auth_token).not_to eql existing_user.auth_token
     end
   end
+
+  describe "#outranks?" do
+
+    it "returns true when user has higher credentials of created user " do
+      existing_user = FactoryGirl.create :user, credentials: "administrator"
+      new_user = FactoryGirl.build :user, credentials: "coordinator"
+      expect(existing_user.can_create?(new_user)).to be true
+    end
+
+    it "returns false when user has lower credentials of created user" do
+      existing_user = FactoryGirl.create :user, credentials: "coordinator"
+      new_user = FactoryGirl.build :user, credentials: "administrator"
+      expect(existing_user.can_create?(new_user)).to be false
+    end
+  end
+
+  
 end
