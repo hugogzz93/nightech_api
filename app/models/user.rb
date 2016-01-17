@@ -7,6 +7,11 @@ class User < ActiveRecord::Base
 	validates :auth_token, uniqueness: true
 	before_create :generate_authentication_token!
 
+  belongs_to :supervisor, class_name: "User"
+  has_many :subordinates, class_name: "User", 
+                    foreign_key: "supervisor_id"
+
+
 	enum credentials: [:coordinator, :administrator, :super]
 
 	def generate_authentication_token!
