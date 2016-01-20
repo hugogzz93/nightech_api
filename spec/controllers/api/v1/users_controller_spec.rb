@@ -2,6 +2,28 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::UsersController, type: :controller do
 
+	describe 'GET #index' do
+		before(:each) do
+			@user = FactoryGirl.create :user, credentials: "administrator"
+			@subordinate_users = FactoryGirl.create_list(:user, 5, supervisor_id: @user.id)
+			api_authorization_header @user.auth_token
+			get :index, format: :json
+		end
+
+		it "should render a json containing all the subordinate users" do
+			user_response = json_response
+			expect(user_response).to have_key(:users)
+		end
+
+		it "should render a json containing all the subordinate users' attributes" do
+			user_response = json_response
+			expect(user_response[:users][0][:email]).to eql @subordinate_users.first.email
+		end
+
+		it { should respond_with 201 }
+
+	end
+
 	describe 'GET #show' do
 		
 		before(:each) do
