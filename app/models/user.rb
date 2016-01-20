@@ -30,8 +30,12 @@ class User < ActiveRecord::Base
   end
 
   def belongs_to?(user)
-    return self.supervisor.id == user.id if self.supervisor.present?
+    return self.supervisor_id == user.id if self.supervisor.present?
     return false
+  end
+
+  def belongs_to!(user)
+    self.update(supervisor_id: user.id)
   end
 
 end

@@ -20,5 +20,23 @@ module Authorizable
 		return true if updater == updatee || updater.super? || updatee.belongs_to?(updater)
 		return false
 	end	
+
+	# Function: authorized_for_deletion
+	# Parameters: updater, updatee
+	# 	updater is the user performing the deletion
+	# 	updatee is the user being deleted
+
+	# Returns: boolean indicating authorization
+	
+	# Description: 
+	# 	The deletion will be authorzied if any of the following are true:
+	# 	The updater has super credentials.
+	# 	The updatee is a subordinate of the updater.
+	# 	It is a self-deletion
+
+	def authorized_for_deletion(deleter, deletee)
+		return true if deleter == deletee || deleter.super? || deletee.belongs_to?(deleter)
+		return false
+	end
 	
 end

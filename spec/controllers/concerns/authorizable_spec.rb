@@ -45,4 +45,49 @@ RSpec.describe Authorizable do
 			end
 		end
 	end
+
+	describe "#authorized_for_deletion" do
+		context "when the deletion is self-made" do
+			before do
+				@user = FactoryGirl.create :user
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_deletion(@user, @user)).to be true
+			end
+		end
+
+		context "when the deletion is made by another user" do
+			before(:each) do
+				@deleter = FactoryGirl.create :user
+				@deletee = FactoryGirl.create :user
+			end
+
+			context "when the deleter has super credentials" do
+				before do
+					@deleter.super!
+				end
+
+				it "returns true" do
+					expect(authorization.authorized_for_deletion(@deleter, @deletee)).to be true
+				end
+			end
+
+			context "when the deletee is a subordinate of the deleter" do
+				before do
+					@deletee.belongs_to!(@deleter)
+				end
+				
+				it "returns true" do
+					expect(authorization.authorized_for_deletion(@deleter, @deletee)).to be true
+				end
+			end
+
+			context "when the deleter is not super and the deletee does not belong to him" do
+				it "returns false" do
+					expect(authorization.authorized_for_deletion(@deleter, @deletee)).to be false
+				end
+			end
+		end
+	end
 end

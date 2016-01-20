@@ -28,8 +28,13 @@ class Api::V1::UsersController < ApplicationController
 
 	def destroy
 		user = User.find(params[:id])
-		user.destroy
-		head 204
+		if authorized_for_deletion(current_user, user)
+			user.destroy
+			head 204
+		else
+			head 403	
+		end
+		
 	end
 
 	private 

@@ -148,7 +148,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 					@user.super!
 					@updatee = FactoryGirl.create :user
 					patch :update, { id: @updatee.id, 
-										user: { credentials: "administrator" } }
+										user: { credentials: "administrator" } }, format: :json
 				end
 
 				it "returns the user json with updated attributes" do
@@ -180,10 +180,49 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 	describe 'DELETE #destroy' do
 		before(:each) do
 			@user = FactoryGirl.create :user
-			delete :destroy, {id: @user.id}, format: :json
+			api_authorization_header @user.auth_token
 		end
 
-		it { should respond_with 204 }
+		context "the user deletes itself" do
+			before(:each) do
+				delete :destroy, {id: @user.id}, format: :json
+			end
+
+			it { should respond_with 204 }
+		end
+
+		context "the user is deleted by another user" do
+			before(:each) do
+				@deletee = FactoryGirl.create :user
+			end
+
+			context "the deleting user has super credentials" do
+				before do
+					@user.super!
+					delete :destroy, { id: @deletee.id }, format: :json
+				end
+			
+				it { should respond_with 204 }
+			end
+
+			context "the deleting user is a supervisor of the deleted user" do
+				before do
+					@deletee.belongs_to!(@user)
+					delete :destroy, { id: @deletee.id }, format: :json
+				end
+
+				it { should respond_with 204 }
+			end
+
+			context "the deleting user is not related to the deleted user" do
+				before do
+					delete :destroy, { id: @deletee.id }, format: :json
+				end
+				
+				it { should respond_with 403 }
+			end
+		end
+
 	end
 
 end
