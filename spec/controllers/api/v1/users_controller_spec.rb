@@ -83,49 +83,146 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 	end
 
 	describe 'PUT/PATCH #update' do
-		context "when is successfuly updated" do
-			before(:each) do
-				@user = FactoryGirl.create :user
-				patch :update, {id: @user.id,
-								user: { email: "newemail@gmail.com" } }, format: :json
-			end
-
-			it "renders the json representation for the updated user" do
-				user_response = json_response
-				expect(user_response[:email]).to eql "newemail@gmail.com"
-			end
-
-			it { should respond_with 200 }
+		before(:each) do
+			@user = FactoryGirl.create :user, credentials: "administrator"
+			api_authorization_header @user.auth_token
 		end
 
-		context "when is not updated" do
-			before(:each) do
-				@user = FactoryGirl.create :user
-				patch :update, { id: @user.id, 
-									user: { email: "bademai.com" } }, format: :json
+		context "when user updates itself" do
+			context "when user updates valid attributes" do
+				context "when is successfuly updated" do
+					before(:each) do
+						patch :update, {id: @user.id,
+										user: { email: "newemail@gmail.com" } }, format: :json
+					end
+
+					it "renders the json representation for the updated user" do
+						user_response = json_response
+						expect(user_response[:email]).to eql "newemail@gmail.com"
+					end
+
+					it { should respond_with 200 }
+				end
+
+				context "when is not updated" do
+					before(:each) do
+						patch :update, { id: @user.id, 
+											user: { email: "bademai.com" } }, format: :json
+					end
+
+					it "renders an errors json" do
+						user_response = json_response
+						expect(user_response).to have_key(:errors)
+					end
+
+					it "renders a json error on why the user could not be created" do
+						user_response = json_response
+						expect(user_response[:errors][:email]).to include("is invalid")
+					end
+
+					it { should respond_with 422 }
+				end
 			end
 
-			it "renders an errors json" do
-				user_response = json_response
-				expect(user_response).to have_key(:errors)
+			context "when user updates invalid attributes" do
+				before(:each) do
+					patch :update, { id: @user.id, 
+										user: { credentials: "super" } }, format: :json
+				end
+
+				it "returns an errors json" do
+					user_response = json_response
+					expect(user_response).to have_key(:errors)
+				end
+
+				it "renders a json error on why the user could not be updated" do
+					user_response = json_response
+					expect(user_response[:errors][:credentials]).to include("Insufficient priviledges")
+				end
+			end
+		end
+
+		context "when user updates another user" do
+			context "when super updates another user" do
+				before(:each) do
+					@user.super!
+					@updatee = FactoryGirl.create :user
+					patch :update, { id: @updatee.id, 
+										user: { credentials: "administrator" } }, format: :json
+				end
+
+				it "returns the user json with updated attributes" do
+					user_response = json_response
+					expect(user_response[:credentials]).to eql "administrator"
+				end
 			end
 
-			it "renders a json error on why the user could not be created" do
-				user_response = json_response
-				expect(user_response[:errors][:email]).to include("is invalid")
-			end
+			context "when non-super users update credentials" do
+				before(:each) do
+					@updatee = FactoryGirl.create :user
+					patch :update, { id: @updatee.id, 
+										user: { credentials: "administrator" } }
+				end
 
-			it { should respond_with 422 }
+				it "returns an error json" do
+					user_response = json_response
+					expect(user_response).to have_key(:errors)
+				end
+
+				it "renders a json error on why the user could not be updated" do
+					user_response = json_response
+					expect(user_response[:errors][:credentials]).to include("Insufficient priviledges")
+				end
+			end
 		end
 	end
 
 	describe 'DELETE #destroy' do
 		before(:each) do
 			@user = FactoryGirl.create :user
-			delete :destroy, {id: @user.id}, format: :json
+			api_authorization_header @user.auth_token
 		end
 
-		it { should respond_with 204 }
+		context "the user deletes itself" do
+			before(:each) do
+				delete :destroy, {id: @user.id}, format: :json
+			end
+
+			it { should respond_with 204 }
+		end
+
+		context "the user is deleted by another user" do
+			before(:each) do
+				@deletee = FactoryGirl.create :user
+			end
+
+			context "the deleting user has super credentials" do
+				before do
+					@user.super!
+					delete :destroy, { id: @deletee.id }, format: :json
+				end
+			
+				it { should respond_with 204 }
+			end
+
+			context "the deleting user is a supervisor of the deleted user" do
+				before do
+					@deletee.belongs_to!(@user)
+					delete :destroy, { id: @deletee.id }, format: :json
+				end
+
+				it { should respond_with 204 }
+			end
+
+			context "the deleting user is not related to the deleted user" do
+				before do
+					delete :destroy, { id: @deletee.id }, format: :json
+				end
+				
+				it { should respond_with 403 }
+			end
+		end
+
 	end
 
 end

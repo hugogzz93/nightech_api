@@ -7,6 +7,11 @@ class User < ActiveRecord::Base
 	validates :auth_token, uniqueness: true
 	before_create :generate_authentication_token!
 
+  belongs_to :supervisor, class_name: "User"
+  has_many :subordinates, class_name: "User", 
+                    foreign_key: "supervisor_id"
+
+
 	enum credentials: [:coordinator, :administrator, :super]
 
 	def generate_authentication_token!
@@ -15,19 +20,22 @@ class User < ActiveRecord::Base
     end while self.class.exists?(auth_token: auth_token)
   end
 
-  # def credentials_to_i
-    # self.class.credentials[self.credentials]
-  # end
-
   def can_create?(user)
     self.outranks?(user)
   end
 
   def outranks?(user)
-    # return true if User.credentials[user_attributes[:credentials]] < self.class.credentials[credentials]
-    # return false
     return true if user.class.credentials[user.credentials] < self.class.credentials[credentials]
     return false
+  end
+
+  def belongs_to?(user)
+    return self.supervisor_id == user.id if self.supervisor.present?
+    return false
+  end
+
+  def belongs_to!(user)
+    self.update(supervisor_id: user.id)
   end
 
 end
