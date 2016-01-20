@@ -20,18 +20,17 @@ class User < ActiveRecord::Base
     end while self.class.exists?(auth_token: auth_token)
   end
 
-  # def credentials_to_i
-    # self.class.credentials[self.credentials]
-  # end
-
   def can_create?(user)
     self.outranks?(user)
   end
 
   def outranks?(user)
-    # return true if User.credentials[user_attributes[:credentials]] < self.class.credentials[credentials]
-    # return false
     return true if user.class.credentials[user.credentials] < self.class.credentials[credentials]
+    return false
+  end
+
+  def belongs_to?(user)
+    return self.supervisor.id == user.id if self.supervisor.present?
     return false
   end
 

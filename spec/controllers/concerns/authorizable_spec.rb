@@ -8,28 +8,41 @@ RSpec.describe Authorizable do
 	let(:authorization) { Authorization.new }
 	subject { authorization }
 
-	# describe "#validate_user_creation" do
-	# 	context "creating user has higher credentials" do
-	# 		before do
-	# 			@current_user = FactoryGirl.create :user, credentials: "administrator"
-	# 			@new_user = FactoryGirl.build :user, credentials: "coordinator"
-	# 		end
+	describe "#authorized_for_update" do
+		context "when user is authorized" do
+			before(:each) do
+				@updating_user = FactoryGirl.create :user, credentials: "administrator" 
+				@new_user_attributes = FactoryGirl.attributes_for :user
+				@updated_user = @updating_user.subordinates.create(@new_user_attributes)
+			end
 
-	# 		it "returns nil if creating user has higher credentials" do
-	# 			expect(authorization.ensure_user_can_create(@current_user, @new_user)).to be nil
-	# 		end
-	# 	end
+			it "returns true" do
+				expect(authorization.authorized_for_update(@updating_user, @updated_user, @new_user_attributes)).to be true
+			end
+		end
 
-	# 	context "creating user has lower or same credentials" do
-	# 		before do
-	# 			@current_user = FactoryGirl.create :user, credentials: "coordinator"
-	# 			@new_user = FactoryGirl.build :user, credentials: "administrator"
-	# 		end
+		context "when user is not authorized" do
+			before(:each) do
+				@updating_user = FactoryGirl.create :user, credentials: "administrator" 
+				user = FactoryGirl.create :user, credentials: "administrator"
+				@new_user_attributes = FactoryGirl.attributes_for :user
+				@updated_user = user.subordinates.create(@new_user_attributes)
+			end
 
-	# 		it "return false if creating user has lower or same credentials" do
-	# 			expect(authorization.ensure_user_can_create(@current_user, @new_user)).to be false
-	# 		end
-	# 	end
-	# end
-	
+			it "returns false" do
+				expect(authorization.authorized_for_update(@updating_user, @updated_user, @new_user_attributes)).to be false
+			end
+		end
+
+		context "when user updates itself" do
+			before do
+				@user = FactoryGirl.create :user, credentials: "coordinator"
+				@new_user_attributes = FactoryGirl.attributes_for :user
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_update(@user, @user, @new_user_attributes)).to be true
+			end
+		end
+	end
 end

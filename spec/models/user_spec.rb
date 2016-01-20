@@ -49,5 +49,29 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "#belongs_to?" do
+    context "when user creates new_user" do
+      before do
+        @user.administrator!
+        @new_user = @user.subordinates.create(FactoryGirl.attributes_for :user)
+      end
+
+      it "returns true" do
+        expect(@new_user.belongs_to?(@user)).to be true
+      end
+    end
+
+    context "when user does not create new_user" do
+      before do
+        @user.administrator!
+        @new_user =  FactoryGirl.create :user
+      end
+
+      it "returns false" do
+        expect(@new_user.belongs_to?(@user)).to be false
+      end
+    end
+  end
+
   
 end
