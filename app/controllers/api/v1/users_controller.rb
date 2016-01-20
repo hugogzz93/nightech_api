@@ -1,6 +1,10 @@
 class Api::V1::UsersController < ApplicationController
 	respond_to :json
 
+	def index
+		render json: current_user.subordinates, status: 201, location: [:api, current_user]
+	end
+
 	def show
 		respond_with User.find(params[:id])
 	end
