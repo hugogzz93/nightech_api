@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   has_many :subordinates, class_name: "User", 
                     foreign_key: "supervisor_id"
 
-  has_many :representatives
+  has_many :representatives, dependent: :destroy
 
 
 	enum credentials: [:coordinator, :administrator, :super]
