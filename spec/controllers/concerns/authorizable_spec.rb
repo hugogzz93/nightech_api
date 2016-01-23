@@ -141,6 +141,28 @@ RSpec.describe Authorizable do
 				expect(authorization.authorized_for_rep_update(@otherUser, @representative)).to be false
 			end
 		end
+	end
 
+	describe "#authorized_for_rep_deletion" do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@representative = FactoryGirl.create :representative
+		end
+
+		context "when user is the owner" do
+			before do
+				@representative.belongs_to! @user
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_rep_deletion(@user, @representative)).to be true
+			end
+		end
+
+		context "when user is not the owner" do
+			it "returns false" do
+				expect(authorization.authorized_for_rep_deletion(@user, @representative)).to be false
+			end
+		end
 	end
 end

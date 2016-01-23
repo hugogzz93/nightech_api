@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::RepresentativesController, type: :controller do
 
-	describe "#GET index" do
+	describe "GET #index" do
 		context "when there are 4 representatives" do
 			before(:each) do
 				4.times { FactoryGirl.create :representative }
@@ -18,7 +18,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 		end
 	end
 
-	describe "#GET show" do
+	describe "GET #show" do
 		before(:each) do
 			@representative = FactoryGirl.create :representative
 			get :show, id: @representative.id 
@@ -97,7 +97,45 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 					patch :update, { user_id: @otherUser.id, id: @representative.id, 
 										representative: { name: "New Name" } }, format: :json
 				end
-				
+
+				it { should respond_with 403 }
+			end
+		end
+	end
+
+	describe "DELETE #destroy" do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@representative = FactoryGirl.create :representative, user: @user
+		end
+
+		context "when destroying user is owner" do
+			before do
+				api_authorization_header @user.auth_token
+				delete :destroy, { user_id: @user.id, id: @representative.id }
+			end
+			it { should respond_with 204 }
+		end
+
+		context "when destroying user is not owner" do
+			before(:each) do
+				@otherUser = FactoryGirl.create :user
+			end
+
+			context "and has administrator clearance" do
+				before do
+					@otherUser.administrator!
+					api_authorization_header @otherUser.auth_token
+					delete :destroy, { user_id: @otherUser.id, id: @representative.id }
+				end
+				it { should respond_with 204 }
+			end
+
+			context "and does not have administrator clearance" do
+				before do
+					api_authorization_header @otherUser.auth_token
+					delete :destroy, { user_id: @otherUser.id, id: @representative.id }
+				end
 				it { should respond_with 403 }
 			end
 		end

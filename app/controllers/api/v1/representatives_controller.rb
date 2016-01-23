@@ -33,6 +33,16 @@ class Api::V1::RepresentativesController < ApplicationController
 		end		
 	end
 
+	def destroy
+		representative = Representative.find(params[:id])
+		if authorized_for_rep_deletion(current_user, representative)
+			representative.destroy 
+			head 204
+		else
+			head 403
+		end
+	end
+
   	private
 
     	def representative_params

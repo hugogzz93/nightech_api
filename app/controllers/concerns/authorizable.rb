@@ -69,5 +69,21 @@ module Authorizable
 		return true if representative.belongs_to?(updater) || has_clearance?(updater, "administrator")
 		return false
 	end
+
+	# Function: authorized_for_rep_update
+	# Parameters: deleter, representative
+	# 	deleter is the user performing the deletion
+
+	# Returns: boolean indiciating authorization
+	
+	# Description: 
+	# 	will return true if the deleter is the owner of the
+	# 	representative or if it has credentials of administrator or
+	# 	higher
+
+	def authorized_for_rep_deletion(deleter, representative)
+		return true if representative.belongs_to?(deleter) || has_clearance?(deleter, "administrator")
+		return false
+	end
 	
 end
