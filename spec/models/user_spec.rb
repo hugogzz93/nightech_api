@@ -10,6 +10,7 @@ RSpec.describe User, type: :model do
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:auth_token) }
   it { should respond_to(:credentials) }
+  it { should respond_to(:representatives) }
 
   it { should be_valid }
 
