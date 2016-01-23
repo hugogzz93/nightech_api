@@ -8,10 +8,12 @@ Rails.application.routes.draw do
     scope module: :v1,
             constraints: ApiConstraints.new(version: 1, default: true) do
       # We are going to list our resources here
-      resources :users, only: [:show, :create, :update, :destroy, :index]
+      resources :users, only: [:show, :create, :update, :destroy, :index] do
+        resources :representatives, :only => [:create, :update, :destroy]
+      end
       resources :sessions, :only => [:create, :destroy]
+      resources :representatives, only: [:show, :index]
     end
   
   end
-
 end

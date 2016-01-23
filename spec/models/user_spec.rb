@@ -10,6 +10,8 @@ RSpec.describe User, type: :model do
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:auth_token) }
   it { should respond_to(:credentials) }
+  it { should respond_to(:representatives) }
+  it { should have_many(:representatives) }
 
   it { should be_valid }
 
@@ -69,6 +71,22 @@ RSpec.describe User, type: :model do
 
       it "returns false" do
         expect(@new_user.belongs_to?(@user)).to be false
+      end
+    end
+  end
+
+  describe "#representatives association" do
+
+    before do
+      @user.save
+      3.times { FactoryGirl.create :representative, user: @user }
+    end
+
+    it "destroys the associated representatives on self destruct" do
+      representatives = @user.representatives
+      @user.destroy
+      representatives.each do |representative|
+        expect(representative.find(representative)).to raise_error ActiveRecord::RecordNotFound
       end
     end
   end
