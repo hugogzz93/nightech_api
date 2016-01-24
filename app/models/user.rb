@@ -12,6 +12,7 @@ class User < ActiveRecord::Base
                     foreign_key: "supervisor_id"
 
   has_many :representatives, dependent: :destroy
+  has_many :reservations, dependent: :destroy
 
 
 	enum credentials: [:coordinator, :administrator, :super]

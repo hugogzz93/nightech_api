@@ -1,5 +1,6 @@
 class Representative < ActiveRecord::Base
 	belongs_to :user
+	has_many :reservations
 	validates :user_id, :name, presence: true
 
 	def belongs_to?(user)
