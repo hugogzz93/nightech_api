@@ -32,7 +32,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 		end
 
 		it "returns the information about a user on hash" do
-			user_response = json_response
+			user_response = json_response[:user]
 			expect(user_response[:email]).to eql @user.email
 		end
 		
@@ -51,7 +51,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 				end
 
 				it "renders the json representation for the user record just created" do
-					user_response = json_response
+					user_response = json_response[:user]
 					expect(user_response[:email]).to eql @user_attributes[:email]
 				end
 
@@ -119,7 +119,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 					end
 
 					it "renders the json representation for the updated user" do
-						user_response = json_response
+						user_response = json_response[:user]
 						expect(user_response[:email]).to eql "newemail@gmail.com"
 					end
 
@@ -174,7 +174,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 				end
 
 				it "returns the user json with updated attributes" do
-					user_response = json_response
+					user_response = json_response[:user]
 					expect(user_response[:credentials]).to eql "administrator"
 				end
 			end

@@ -25,7 +25,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 		end
 
 		it "returns the information about the representative on a hash" do
-			representative_response = json_response
+			representative_response = json_response[:representative]
 			expect(representative_response[:name]).to eql @representative.name
 		end
 
@@ -42,7 +42,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 	      end
 
 	      it "renders the json representation for the representative record just created" do
-	        representative_response = json_response
+	        representative_response = json_response[:representative]
 	        expect(representative_response[:name]).to eql @representative_attributes[:name]
 	      end
 
@@ -64,7 +64,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 				end
 
 				it "renders a json representation of the updated representative" do
-					representative_response = json_response
+					representative_response = json_response[:representative]
 					expect(representative_response[:name]).to eql "New Name"
 				end
 
@@ -85,7 +85,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 				end
 
 				it "renders a json representation of the updated representative" do
-					representative_response = json_response
+					representative_response = json_response[:representative]
 					expect(representative_response[:name]).to eql "New Name"
 				end
 
