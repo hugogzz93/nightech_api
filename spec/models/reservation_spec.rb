@@ -78,9 +78,18 @@ RSpec.describe Reservation, type: :model do
 				# pending "service creation"
 			end
 		end
-
 	end
 
+	describe ".by_date" do
+		before(:each) do
+			@reservation1 = FactoryGirl.create :reservation, date: DateTime.new(2015, 03, 30, 3, 12, 15)
+			@reservation2 = FactoryGirl.create :reservation, date: DateTime.new(2015, 1, 12, 12, 32, 15)
+			@reservation3 = FactoryGirl.create :reservation, date: DateTime.new(2015, 1, 12, 14, 31, 55)
+			@reservation4 = FactoryGirl.create :reservation, date: DateTime.new(2015, 9, 9, 4, 33, 44)
+		end
 
-  
+		it "returns a json with the reservations on the indicated date" do
+			expect(Reservation.by_date(DateTime.new(2015, 1, 12))).to match_array([@reservation2, @reservation3])
+		end
+	end
 end
