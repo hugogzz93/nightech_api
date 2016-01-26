@@ -11,9 +11,18 @@ class Api::V1::ReservationsController < ApplicationController
 		end
 	end
 
+	def create
+		reservation = current_user.reservations.build(reservation_params)
+		if reservation.save
+			render json: reservation, status: 201, location: [:api, reservation]
+		else
+			render json: { errors: reservation.errors }, status: 422
+		end
+	end
+
 	def update
 		reservation = Reservation.find(params[:id])
-		if authorized_for_res_update(current_user, reservation) && reservation.update(reservation_params)
+		if authorized_for_res_update(current_user, reservation) && reservation.update(reservation_update_params)
 			render json: reservation, status: 200, location: [:api, reservation]
 		else
 			if !authorized_for_res_update(current_user, reservation)
@@ -36,7 +45,11 @@ class Api::V1::ReservationsController < ApplicationController
 
 	private
 
-	def reservation_params
-		params.require(:reservation).permit(:status, :visible)
-	end
+		def reservation_params
+			params.require(:reservation).permit(:client, :representative_id, :quantity, :comment, :date)
+		end
+
+		def reservation_update_params
+			params.require(:reservation).permit(:status, :visible)
+		end
 end

@@ -57,6 +57,48 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 		end
 	end
 
+	describe 'POST #create' do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			api_authorization_header @user.auth_token
+		end
+
+		context "when successfully created" do
+			before(:each) do
+				@reservation_attributes = FactoryGirl.attributes_for :reservation
+				post :create, reservation: @reservation_attributes
+			end
+
+			it "returns a json with reservation" do
+				reservation_response = json_response[:reservation]
+				expect(reservation_response[:client]).to eql @reservation_attributes[:client]
+			end
+
+			it { should respond_with 201}
+		end
+
+		context "when is not created" do
+			before(:each) do
+				@invalid_attributes = FactoryGirl.attributes_for :reservation
+				@invalid_attributes[:quantity] = 0
+				post :create, reservation: @invalid_attributes 
+			end
+
+			it "returns an errors json" do
+				reservation_response = json_response
+				expect(reservation_response).to have_key(:errors)
+			end
+
+			it "contains a json key with the error message" do
+				reservation_response = json_response
+				expect(reservation_response[:errors][:quantity]).to include "must be greater than or equal to 1"
+			end
+
+			it { should respond_with 422}
+
+		end
+	end
+
 	describe 'PUT/PATCH #update' do
 		before(:each) do
 			@user = FactoryGirl.create :user
@@ -143,7 +185,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			before do
 				delete :destroy, id: @reservation.id
 			end
-			
+
 			it { should respond_with 403 }
 		end
 	end

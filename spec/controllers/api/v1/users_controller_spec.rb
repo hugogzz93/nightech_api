@@ -101,7 +101,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 				expect(user_response[:errors][:credentials]).to include "Insufficient priviledges"
 			end
 		end
-
 	end
 
 	describe 'PUT/PATCH #update' do
