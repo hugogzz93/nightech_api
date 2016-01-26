@@ -12,6 +12,7 @@ RSpec.describe User, type: :model do
   it { should respond_to(:credentials) }
   it { should respond_to(:representatives) }
   it { should have_many(:representatives) }
+  it { should have_many(:reservations) }
 
   it { should be_valid }
 

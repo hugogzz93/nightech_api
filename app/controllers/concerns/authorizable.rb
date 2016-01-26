@@ -85,5 +85,32 @@ module Authorizable
 		return true if representative.belongs_to?(deleter) || has_clearance?(deleter, "administrator")
 		return false
 	end
+
+	# Function: authorized_for_res_update
+	# Parameters: updater, reservation
+	# 	updater: the user performing the update
+	# 	reservation: the reservation to be updates
+	# Returns: boolean
+	
+	# Description: 
+	# 	will return true only if the user has administrator clearance
+
+	def authorized_for_res_update(updater, reservation)
+		return updater.administrator? ? true: false
+	end
+
+	# Function: authorized_for_res_deletion
+	# Parameters: deleter, reservation
+	# 	deleter: the user performing the update
+	# 	reservation: the reservation to be updates
+	# Returns: boolean
+	
+	# Description: 
+	# 	will return true only if the deleter has administrator clearance
+	# 	or is owner
+	def authorized_for_res_deletion(deleter, reservation)
+		return true if reservation.belongs_to?(deleter) || has_clearance?(deleter, "administrator")
+		return false
+	end
 	
 end

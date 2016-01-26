@@ -20,7 +20,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 			expect(user_response[:users][0][:email]).to eql @subordinate_users.first.email
 		end
 
-		it { should respond_with 201 }
+		it { should respond_with 200 }
 
 	end
 
@@ -101,7 +101,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 				expect(user_response[:errors][:credentials]).to include "Insufficient priviledges"
 			end
 		end
-
 	end
 
 	describe 'PUT/PATCH #update' do

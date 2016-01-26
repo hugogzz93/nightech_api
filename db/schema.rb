@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160123004720) do
+ActiveRecord::Schema.define(version: 20160124051706) do
 
   create_table "representatives", force: :cascade do |t|
     t.string   "name",       default: ""
@@ -21,6 +21,19 @@ ActiveRecord::Schema.define(version: 20160123004720) do
   end
 
   add_index "representatives", ["user_id"], name: "index_representatives_on_user_id"
+
+  create_table "reservations", force: :cascade do |t|
+    t.string   "client",                            null: false
+    t.integer  "user_id",                           null: false
+    t.integer  "representative_id"
+    t.integer  "quantity",          default: 1
+    t.string   "comment",           default: ""
+    t.datetime "date",                              null: false
+    t.integer  "status",            default: 0
+    t.boolean  "visible",           default: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false

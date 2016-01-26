@@ -165,4 +165,61 @@ RSpec.describe Authorizable do
 			end
 		end
 	end
+
+	describe "#authorized_for_res_update" do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@reservation = FactoryGirl.create :reservation
+		end
+
+		context "when user does not have administrator clearance" do
+			it "returns false" do
+				expect(authorization.authorized_for_res_update(@user, @reservation)).to eql false
+			end
+		end
+
+		context "when user has administrator clearance" do
+			before do
+				@user.administrator!
+			end
+			
+			it "returns true" do
+				expect(authorization.authorized_for_res_update(@user, @reservation)).to eql true
+			end
+		end
+	end
+
+	describe "#authorized_for_res_deletion" do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@reservation = FactoryGirl.create :reservation
+		end
+
+		context "when user is the owner" do
+			before do
+				@reservation.belongs_to!(@user)
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_res_deletion(@user, @reservation)).to be true
+			end
+		end
+
+		context "when user has administrator clearance" do
+			before do
+				@user.administrator!
+			end
+			
+			it "returns true" do
+				expect(authorization.authorized_for_res_deletion(@user, @reservation)).to be true
+			end
+		end
+
+		context "when user is not owner and without administrator clearance" do
+			it "returns false" do
+				expect(authorization.authorized_for_res_deletion(@user, @reservation)).to be false
+			end
+		end
+
+	end
 end
