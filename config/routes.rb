@@ -14,7 +14,7 @@ Rails.application.routes.draw do
 
       resources :sessions, :only => [:create, :destroy]
       resources :representatives, only: [:show, :index]
-      resources :reservations, only: [:index]
+      resources :reservations, only: [:index, :update]
     end
   end
 end
