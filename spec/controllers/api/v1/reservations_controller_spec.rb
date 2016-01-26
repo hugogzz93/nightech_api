@@ -114,4 +114,37 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 		end
 	end
 
+	describe 'DELETE #destroy' do
+		before do
+			@user = FactoryGirl.create :user
+			@reservation = FactoryGirl.create :reservation
+			api_authorization_header @user.auth_token
+		end
+
+		context "when destroyer is the owner" do
+			before do
+				@reservation.belongs_to!(@user)
+				delete :destroy, id: @reservation.id
+			end
+
+			it { should respond_with 204 }
+		end
+
+		context "when destroyer has administrator clearance" do
+			before do
+				@user.administrator!
+				delete :destroy, id: @reservation.id
+			end
+
+			it { should respond_with 204 }
+		end
+
+		context "when destroyer is not owner and does not have administrator clearance" do
+			before do
+				delete :destroy, id: @reservation.id
+			end
+			
+			it { should respond_with 403 }
+		end
+	end
 end

@@ -24,6 +24,16 @@ class Api::V1::ReservationsController < ApplicationController
 		end
 	end
 
+	def destroy
+		reservation = Reservation.find(params[:id])
+		if authorized_for_res_deletion(current_user, reservation)
+			reservation.destroy
+			head 204
+		else
+			head 403
+		end
+	end
+
 	private
 
 	def reservation_params

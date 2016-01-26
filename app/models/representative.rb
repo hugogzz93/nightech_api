@@ -4,8 +4,7 @@ class Representative < ActiveRecord::Base
 	validates :user_id, :name, presence: true
 
 	def belongs_to?(user)
-		return true if self.user_id == user.id
-		return false
+		return self.user_id == user.id ? true : false
 	end
 
 	def belongs_to!(user)

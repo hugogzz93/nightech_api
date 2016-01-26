@@ -92,4 +92,27 @@ RSpec.describe Reservation, type: :model do
 			expect(Reservation.by_date(DateTime.new(2015, 1, 12))).to match_array([@reservation2, @reservation3])
 		end
 	end
+
+	describe "belongs_to?" do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@reservation = FactoryGirl.create :reservation
+		end
+
+		context "when user is not the owner" do
+			it " returns false" do
+				expect(@reservation.belongs_to?(@user)).to be false
+			end
+		end
+
+		context "when user is the owner" do
+			before do
+				@reservation.belongs_to!(@user)
+			end
+
+			it 'returns true' do
+				expect(@reservation.belongs_to?(@user)).to be true
+			end
+		end
+	end
 end

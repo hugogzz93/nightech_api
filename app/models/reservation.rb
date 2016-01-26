@@ -17,4 +17,12 @@ class Reservation < ActiveRecord::Base
 	def self.by_date(date)
 		Reservation.where(date: date..date.end_of_day)
 	end
+
+	def belongs_to?(user)
+		return self.user_id == user.id ? true : false
+	end
+
+	def belongs_to!(user)
+		self.update(user_id: user.id)
+	end
 end
