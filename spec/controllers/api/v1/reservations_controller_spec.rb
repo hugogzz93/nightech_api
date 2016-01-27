@@ -15,7 +15,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				get :index, date: @date.utc.to_s, format: :json
 			end
 
-			it "returns the correct ammount of reservations" do
+			it "returns all the reservations for that date" do
 				reservation_response = json_response[:reservations]
 				expect(reservation_response.count).to eql 2
 			end
@@ -72,6 +72,11 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			it "returns a json with reservation" do
 				reservation_response = json_response[:reservation]
 				expect(reservation_response[:client]).to eql @reservation_attributes[:client]
+			end
+
+			it "belongs to the creating user" do
+				reservation_response = json_response[:reservation]
+				expect(reservation_response[:user_id]).to eql @user.id
 			end
 
 			it { should respond_with 201}
