@@ -15,6 +15,7 @@ RSpec.describe Reservation, type: :model do
 	it { should respond_to(:date) }
 	it { should respond_to(:status) }
 	it { should respond_to(:visible) }
+	it { should have_one(:service) }
 	it { should be_valid }
 
 	it { should validate_presence_of(:client) }
@@ -72,6 +73,9 @@ RSpec.describe Reservation, type: :model do
 
 			xit "service should have same user" do
 				# pending "service creation"
+			end
+
+			xit "service should have same representative" do
 			end
 
 			xit "service should have same quantity" do
