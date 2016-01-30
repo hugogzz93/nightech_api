@@ -80,6 +80,22 @@ RSpec.describe Service, type: :model do
   	end
   end
 
+  describe "#create_from_reservation" do
+    before(:each) do
+      @user = FactoryGirl.create :user, credentials: "administrator"
+      @reservation = FactoryGirl.create :reservation
+    end
+
+    context "when successfully created" do
+      before do
+        @service = Service.create_from_reservation(@reservation, @user)
+      end
+      it "has the user assigned" do
+        expect(@service.administrator).to eql @user
+      end
+    end
+  end
+
   describe '.coordinated_by?' do
     before do
       @coordinator = FactoryGirl.create :user
@@ -99,6 +115,29 @@ RSpec.describe Service, type: :model do
     context "whent he user is not the coordinator" do
       it "returns false" do
         expect(@service.coordinated_by?(@coordinator)).to be false
+      end
+    end
+  end
+
+  describe '.administered_by?' do
+    before(:each) do
+      @user = FactoryGirl.create :user
+      @service = FactoryGirl.create :service
+    end
+
+    context "when user is the administrator" do
+      before do
+        @service.administered_by! @user
+      end
+
+      it "should returns true" do
+        expect(@service.administered_by? @user).to be true
+      end
+    end
+
+    context "when user is not the administrator" do
+      it "return false" do
+        expect(@service.administered_by? @user).to be false
       end
     end
   end

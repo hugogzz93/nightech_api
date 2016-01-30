@@ -40,6 +40,10 @@ RSpec.describe Reservation, type: :model do
 	end
 
 	describe "service association" do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@reservation = FactoryGirl.create :reservation, user: @user
+		end
 
 		context "when status is set to pending" do
 			xit "should have no service assigned" do
@@ -119,4 +123,31 @@ RSpec.describe Reservation, type: :model do
 			end
 		end
 	end
+
+	# describe ".status_change_handler" do
+	# 	before(:each) do
+	# 		@reservation = FactoryGirl.create :reservation
+	# 		@administrator = FactoryGirl.create :user, credentials: "administrator"
+	# 	end
+
+	# 	context "when status is changed to accepted" do
+	# 		before do
+	# 			@reservation.accepted!
+	# 		end
+
+	# 		it "should have a service associated" do
+	# 			expect(@reservation.service.present?).to be true
+	# 		end
+	# 	end
+
+	# 	context "when status is changed to rejected" do
+	# 		before do
+	# 			@reservation.rejected!
+	# 		end
+
+	# 		it "should have no service associated" do
+	# 			expect(@reservation.service.present?).to be false
+	# 		end
+	# 	end
+	# end
 end

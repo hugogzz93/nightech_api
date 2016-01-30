@@ -53,6 +53,28 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				expect(reservation_response[0][:client]).to eql @reservation1.client
 			end
 
+			context "when a service has visibility set to true" do
+				before(:each) do
+					@service = Service.build_from_reservation @reservation1
+					@service.visible = true
+					@service.save
+				end
+
+				xit "returns the json with a table number" do
+				end
+			end
+
+			context "when a service has visibility set to false" do
+				before(:each) do
+					@service = Service.build_from_reservation @reservation1
+					@service.visible = false
+					@service.save
+				end
+
+				xit "does not return a table number with the json" do
+				end
+			end
+
 			it { should respond_with 200 }
 		end
 	end
@@ -158,6 +180,32 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			# 		expect(reservation_response[:errors][:status]).to include "is invalid"
 			# 	end
 			# end
+		end
+
+		context "when status is changed to accepted" do
+			before(:each) do
+				@validUser = FactoryGirl.create :user, credentials: "administrator"
+				api_authorization_header @validUser.auth_token
+				patch :update, { id: @reservation.id, 
+								reservation: { status: "accepted", visible: false } }, format: :json
+			end
+
+			it "should have a service associated" do
+				expect(@reservation.service.present?).to be true
+			end
+		end
+
+		context "whens status is changed to rejected" do
+			before(:each) do
+				@validUser = FactoryGirl.create :user, credentials: "administrator"
+				api_authorization_header @validUser.auth_token
+				patch :update, { id: @reservation.id, 
+								reservation: { status: "rejected", visible: false } }, format: :json
+			end
+
+			it "should have no service associated" do
+				expect(@reservation.service.present?).to be false
+			end
 		end
 	end
 

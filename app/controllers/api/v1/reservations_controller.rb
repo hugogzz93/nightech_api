@@ -23,6 +23,7 @@ class Api::V1::ReservationsController < ApplicationController
 	def update
 		reservation = Reservation.find(params[:id])
 		if authorized_for_res_update(current_user, reservation) && reservation.update(reservation_update_params)
+			Service.create_from_reservation(reservation, current_user) if reservation.accepted?
 			render json: reservation, status: 200, location: [:api, reservation]
 		else
 			if !authorized_for_res_update(current_user, reservation)

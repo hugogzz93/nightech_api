@@ -1,6 +1,6 @@
 class Service < ActiveRecord::Base
 	include Authorizable
-	
+
 	belongs_to :coordinator, class_name: 'User'
 	belongs_to :administrator, class_name: 'User'
 	belongs_to :representative
@@ -21,6 +21,14 @@ class Service < ActiveRecord::Base
 						date: reservation.date, reservation_id: reservation.id)
 	end
 
+	# Builds the object and creates it after having the received administrator assigned to ti
+	def self.create_from_reservation(reservation, administrator)
+		service = Service.build_from_reservation reservation
+		service.administrator = administrator
+		service.save
+		service
+	end
+
 
 	# Receives a user object and updates the
 	# calling service to have the user as its coordinator.
@@ -34,11 +42,22 @@ class Service < ActiveRecord::Base
 		return self.coordinator == user ? true : false
 	end
 
+	# Receives a user object and updates the
+	# calling service to have the user as its administrator.
+	def administered_by!(user)
+		self.update(administrator: user)
+	end
+
+	# Returns true if the user is the 
+	# services' administrator.
+	def administered_by?(user)
+		return self.administrator == user ? true : false
+	end
+
 	# Checks the administering user for the appropiate clearance.
 	def administrator_clearance
 		errors.add(:administrator, "User doesn't have administrator clearance.") unless
 												 has_clearance?(administrator, "administrator") if 
 												 administrator.present?
 	end
-
 end
