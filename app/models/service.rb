@@ -1,4 +1,6 @@
 class Service < ActiveRecord::Base
+	include Authorizable
+	
 	belongs_to :coordinator, class_name: 'User'
 	belongs_to :administrator, class_name: 'User'
 	belongs_to :representative
@@ -6,6 +8,7 @@ class Service < ActiveRecord::Base
 
 	validates :quantity, numericality: { greater_than_or_equal_to: 1 }
 	validates :date, :quantity, :client, :administrator, :coordinator, presence: true
+	validate :administrator_clearance
 
 	enum status: [:incomplete, :complete]
 
@@ -30,4 +33,12 @@ class Service < ActiveRecord::Base
 	def coordinated_by?(user)
 		return self.coordinator == user ? true : false
 	end
+
+	# Checks the administering user for the appropiate clearance.
+	def administrator_clearance
+		errors.add(:administrator, "User doesn't have administrator clearance.") unless
+												 has_clearance?(administrator, "administrator") if 
+												 administrator.present?
+	end
+
 end

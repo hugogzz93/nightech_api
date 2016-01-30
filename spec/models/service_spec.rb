@@ -30,7 +30,31 @@ RSpec.describe Service, type: :model do
   it { should validate_presence_of(:coordinator) }
   xit { should validate_presence_of(:table) }
 
-  xit "validates administrator has administrator clearance" do
+  describe "validates administrator has administrator clearance" do
+    before do
+      @user = FactoryGirl.create :user
+    end
+
+    context "when user does have clearance" do
+      before do
+        @user.administrator!
+        @service = FactoryGirl.build :service, administrator: @user, coordinator: @user
+      end
+
+      it "is valid" do
+        expect(@service.valid?).to be true
+      end
+    end
+
+    context "when user doesn't have clearance" do
+      before do
+        @service = FactoryGirl.build :service, administrator: @user, coordinator: @user
+      end
+
+      it "is invalid" do
+        expect(@service.valid?).to be false
+      end
+    end
   end
 
   describe "#build_from_reservation" do
