@@ -14,6 +14,12 @@ class User < ActiveRecord::Base
   has_many :representatives, dependent: :destroy
   has_many :reservations, dependent: :destroy
 
+  has_many :coordinated_services, class_name: "Service",
+                                 foreign_key: 'coordinator_id', dependent: :destroy
+                                 
+  has_many :administered_services, class_name: "Service",
+                                 foreign_key: 'administrator_id', dependent: :destroy
+
 
 	enum credentials: [:coordinator, :administrator, :super]
 

@@ -1,7 +1,7 @@
 class CreateServices < ActiveRecord::Migration
   def change
     create_table :services do |t|
-      t.integer :user_id, null: false
+      t.integer :coordinator_id, null: false
       t.integer :administrator_id, null: false
       t.integer :representative_id
       t.integer :reservation_id

@@ -5,7 +5,7 @@ FactoryGirl.define do
 	representative
 	quantity { rand() * 9 + 1 } # 1-10
 	comment { FFaker::Lorem.phrase }
-	date "2016-01-23 23:17:06"
+	date DateTime.now
 	# status 0
 	# visible false
   end

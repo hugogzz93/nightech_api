@@ -4,14 +4,14 @@ RSpec.describe Service, type: :model do
   let(:service) { FactoryGirl.build :service }
   subject { service }
 
-  it { should belong_to(:user) }
+  it { should belong_to(:coordinator) }
   it { should belong_to(:administrator) }
   it { should belong_to(:representative) }
   it { should belong_to(:reservation) }
   xit { should have_one(:table) }
 
   it { should respond_to(:client) }
-  it { should respond_to(:user) }
+  it { should respond_to(:coordinator) }
   it { should respond_to(:administrator) }
   it { should respond_to(:representative) }
   it { should respond_to(:reservation) }
@@ -20,22 +20,63 @@ RSpec.describe Service, type: :model do
   it { should respond_to(:ammount) }
   it { should respond_to(:date) }
   it { should respond_to(:status) }
-  it { should validate_numericality_of(:quantity).is_greater_than_or_equal_to(1) }
-  xit { should validate_presence_of(:table) }
   xit { should respond_to(:table) }
 
+  it { should validate_numericality_of(:quantity).is_greater_than_or_equal_to(1) }
+  it { should validate_presence_of(:date) }
+  it { should validate_presence_of(:quantity) }
+  it { should validate_presence_of(:client) }
+  it { should validate_presence_of(:administrator) }
+  it { should validate_presence_of(:coordinator) }
+  xit { should validate_presence_of(:table) }
+
+  xit "validates administrator has administrator clearance" do
+  end
+
   describe "#build_from_reservation" do
+    before do
+      @reservation = FactoryGirl.create :reservation
+      @service = Service.build_from_reservation @reservation
+    end
+
   	it "should both have the same user" do
+      expect(@service.coordinator).to eql @reservation.user
   	end
 
   	it "should have the same client" do
+      expect(@service.client).to eql @reservation.client
   	end
 
   	it "should have the same date" do
+      expect(@service.date).to eql @reservation.date
   	end
 
   	it "should have the reservation's id" do
+      expect(@service.reservation_id).to eql @reservation.id
   	end
+  end
+
+  describe '.coordinated_by?' do
+    before do
+      @coordinator = FactoryGirl.create :user
+      @service = FactoryGirl.create :service
+    end
+
+    context "when the user is the coordinator" do
+      before do
+        @service.coordinated_by!(@coordinator)
+      end
+
+      it "returns true" do
+        expect(@service.coordinated_by?(@coordinator)).to be true
+      end
+    end
+
+    context "whent he user is not the coordinator" do
+      it "returns false" do
+        expect(@service.coordinated_by?(@coordinator)).to be false
+      end
+    end
   end
 
   describe "table association" do

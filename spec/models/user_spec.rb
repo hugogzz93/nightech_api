@@ -13,6 +13,8 @@ RSpec.describe User, type: :model do
   it { should respond_to(:representatives) }
   it { should have_many(:representatives) }
   it { should have_many(:reservations) }
+  it { should have_many(:coordinated_services) }
+  it { should have_many(:administered_services) }
 
   it { should be_valid }
 
