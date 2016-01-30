@@ -8,7 +8,7 @@ RSpec.describe Service, type: :model do
   it { should belong_to(:administrator) }
   it { should belong_to(:representative) }
   it { should belong_to(:reservation) }
-  xit { should have_one(:table) }
+  it { should belong_to(:table) }
 
   it { should respond_to(:client) }
   it { should respond_to(:coordinator) }
@@ -20,7 +20,7 @@ RSpec.describe Service, type: :model do
   it { should respond_to(:ammount) }
   it { should respond_to(:date) }
   it { should respond_to(:status) }
-  xit { should respond_to(:table) }
+  it { should respond_to(:table) }
 
   it { should validate_numericality_of(:quantity).is_greater_than_or_equal_to(1) }
   it { should validate_presence_of(:date) }
@@ -28,9 +28,9 @@ RSpec.describe Service, type: :model do
   it { should validate_presence_of(:client) }
   it { should validate_presence_of(:administrator) }
   it { should validate_presence_of(:coordinator) }
-  xit { should validate_presence_of(:table) }
+  it { should validate_presence_of(:table) }
 
-  describe "validates administrator has administrator clearance" do
+  describe "validates administrator's clearance" do
     before do
       @user = FactoryGirl.create :user
     end
@@ -57,7 +57,7 @@ RSpec.describe Service, type: :model do
     end
   end
 
-  describe "#build_from_reservation" do
+  describe ".build_from_reservation" do
     before do
       @reservation = FactoryGirl.create :reservation
       @service = Service.build_from_reservation @reservation
@@ -80,7 +80,7 @@ RSpec.describe Service, type: :model do
   	end
   end
 
-  describe "#create_from_reservation" do
+  describe ".create_from_reservation" do
     before(:each) do
       @user = FactoryGirl.create :user, credentials: "administrator"
       @reservation = FactoryGirl.create :reservation
@@ -96,7 +96,24 @@ RSpec.describe Service, type: :model do
     end
   end
 
-  describe '.coordinated_by?' do
+  describe ".by_date" do
+    before(:each) do
+      @table1 = Table.create(number: 11)
+      @table2 = Table.create(number: 12)
+      @table3 = Table.create(number: 13)
+      @table4 = Table.create(number: 14)
+      @service1 = FactoryGirl.create :service, date: DateTime.new(2015, 03, 30, 3, 12, 15), table: @table1
+      @service2 = FactoryGirl.create :service, date: DateTime.new(2015, 1, 12, 12, 32, 15), table: @table2
+      @service3 = FactoryGirl.create :service, date: DateTime.new(2015, 1, 12, 14, 31, 55), table: @table3
+      @service4 = FactoryGirl.create :service, date: DateTime.new(2015, 9, 9, 4, 33, 44), table: @table4
+    end
+
+    it "returns a json with the services on the indicated date" do
+      expect(Service.by_date(DateTime.new(2015, 1, 12))).to match_array([@service2, @service3])
+    end
+  end
+
+  describe '#coordinated_by?' do
     before do
       @coordinator = FactoryGirl.create :user
       @service = FactoryGirl.create :service
@@ -119,7 +136,7 @@ RSpec.describe Service, type: :model do
     end
   end
 
-  describe '.administered_by?' do
+  describe '#administered_by?' do
     before(:each) do
       @user = FactoryGirl.create :user
       @service = FactoryGirl.create :service
@@ -138,13 +155,6 @@ RSpec.describe Service, type: :model do
     context "when user is not the administrator" do
       it "return false" do
         expect(@service.administered_by? @user).to be false
-      end
-    end
-  end
-
-  describe "table association" do
-    context "when created" do
-      xit "should have a table assigned" do
       end
     end
   end

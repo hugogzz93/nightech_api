@@ -5,28 +5,34 @@ class Service < ActiveRecord::Base
 	belongs_to :administrator, class_name: 'User'
 	belongs_to :representative
 	belongs_to :reservation
+	belongs_to :table
 
 	validates :quantity, numericality: { greater_than_or_equal_to: 1 }
-	validates :date, :quantity, :client, :administrator, :coordinator, presence: true
-	validate :administrator_clearance
+	validates :date, :quantity, :client, :administrator, :coordinator, :table, presence: true
+	validate :administrator_clearance, :schedule_uniqueness
 
 	enum status: [:incomplete, :complete]
 
 	# Receives a reservation object and copies its 
 	# attributes into the service, also uses the 
 	# reservation's id for the services' association.
-	def self.build_from_reservation(reservation)
+	def self.build_from_reservation(reservation, administrator = nil, table = nil)
 		Service.new(client: reservation.client, coordinator: reservation.user,
 						representative_id: reservation.representative.id, quantity: reservation.quantity,
-						date: reservation.date, reservation_id: reservation.id)
+						date: reservation.date, reservation_id: reservation.id,
+						administrator: administrator, table: table)
 	end
 
 	# Builds the object and creates it after having the received administrator assigned to ti
-	def self.create_from_reservation(reservation, administrator)
-		service = Service.build_from_reservation reservation
-		service.administrator = administrator
+	def self.create_from_reservation(reservation, administrator, table)
+		service = Service.build_from_reservation reservation, administrator, table
 		service.save
 		service
+	end
+
+	# Will return all services on that day
+	def self.by_date(date)
+		Service.where(date: date..date.end_of_day)
 	end
 
 
@@ -59,5 +65,12 @@ class Service < ActiveRecord::Base
 		errors.add(:administrator, "User doesn't have administrator clearance.") unless
 												 has_clearance?(administrator, "administrator") if 
 												 administrator.present?
+	end
+
+	# There must not be two services using the same table on the same day
+	def schedule_uniqueness
+		errors.add(:date, "Table is already occupied for that date.") if
+											 Service.by_date(date).where(table_id: table.id).any? if
+											 date.present? && table.present?
 	end
 end

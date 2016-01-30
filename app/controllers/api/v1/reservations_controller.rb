@@ -23,8 +23,11 @@ class Api::V1::ReservationsController < ApplicationController
 	def update
 		reservation = Reservation.find(params[:id])
 		if authorized_for_res_update(current_user, reservation) && reservation.update(reservation_update_params)
-			Service.create_from_reservation(reservation, current_user) if reservation.accepted?
-			render json: reservation, status: 200, location: [:api, reservation]
+			if reservation.accepted?
+				handle_reservation_acceptance reservation
+			else
+				render json: reservation, status: 200, location: [:api, reservation]
+			end
 		else
 			if !authorized_for_res_update(current_user, reservation)
 				head 403
@@ -52,5 +55,15 @@ class Api::V1::ReservationsController < ApplicationController
 
 		def reservation_update_params
 			params.require(:reservation).permit(:status, :visible)
+		end
+
+		def handle_reservation_acceptance(reservation)
+			service = Service.create_from_reservation(reservation, current_user, Table.where(number: params[:table_number]).first) 
+			if !service.new_record?
+				render json: reservation, status: 200, location: [:api, reservation]
+			else 
+				reservation.pending!
+				render json: { errors: service.errors }, status: 422
+			end
 		end
 end

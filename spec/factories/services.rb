@@ -8,6 +8,7 @@ FactoryGirl.define do
 	quantity { rand() * 9 + 1 }
 	comment { FFaker::Lorem.phrase }
 	date DateTime.now
+	table
 	# ammount { rand() * 100 }
   end
 
