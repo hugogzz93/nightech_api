@@ -243,4 +243,25 @@ RSpec.describe Authorizable do
 			end
 		end
 	end
+
+	describe '#authorized_for_service_creation' do
+		context "when user is super" do
+			before do
+				@user = FactoryGirl.create :user, credentials: "super"
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_service_creation @user).to be true
+			end
+		end
+		context "when user is coordinator" do
+			before do
+				@user = FactoryGirl.create :user
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_service_creation @user).to be false
+			end
+		end
+	end
 end

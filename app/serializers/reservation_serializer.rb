@@ -3,10 +3,6 @@ class ReservationSerializer < ActiveModel::Serializer
   has_one :table_number
 
   def table_number
-  		if object.service && visible
-  			object.service.table.number
-  		else
-  			
-  		end
+		object.service.table.number if object.service && visible
   	end
 end

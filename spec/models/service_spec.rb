@@ -57,6 +57,31 @@ RSpec.describe Service, type: :model do
     end
   end
 
+  describe "table schedules" do
+    before do
+      @table = Table.create(number: "1")
+      @date = DateTime.now      
+    end
+
+    context "when schedule is free" do
+      it "is valid" do
+        @service1 = FactoryGirl.build :service, table: @table, date: @date
+        expect(@service1.valid?).to be true
+      end
+    end
+
+    context "when schedule is not free" do
+      before do
+        @service1 = FactoryGirl.create :service, table: @table, date: @date
+        @service2 = FactoryGirl.build :service, table: @table, date: @date
+      end
+
+      it "is not valid" do
+        expect(@service2.valid?).to be false
+      end
+    end
+  end
+
   describe ".build_from_reservation" do
     before do
       @reservation = FactoryGirl.create :reservation
@@ -82,13 +107,14 @@ RSpec.describe Service, type: :model do
 
   describe ".create_from_reservation" do
     before(:each) do
+      @table = Table.create(number: "rc1")
       @user = FactoryGirl.create :user, credentials: "administrator"
       @reservation = FactoryGirl.create :reservation
     end
 
     context "when successfully created" do
       before do
-        @service = Service.create_from_reservation(@reservation, @user)
+        @service = Service.create_from_reservation(@reservation, @user, @table)
       end
       it "has the user assigned" do
         expect(@service.administrator).to eql @user

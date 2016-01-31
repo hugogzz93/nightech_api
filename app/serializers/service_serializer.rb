@@ -1,3 +1,8 @@
 class ServiceSerializer < ActiveModel::Serializer
-  attributes :id, :user_id, :administrator_id, :date, :quantity, :ammount, :status,
+  attributes :id, :coordinator_id, :administrator_id, :client, :date, :quantity, :ammount, :status
+  has_one :table_number
+
+  def table_number
+  	object.table.number
+  end
 end

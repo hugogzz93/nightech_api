@@ -8,8 +8,10 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 			api_authorization_header @user.auth_token
 			@date = DateTime.new(2015, 06, 13)
 			@service = FactoryGirl.create :service, date: @date # service on target date
-			2.times { FactoryGirl.create :service, date: @date } # services on target date
-			2.times { FactoryGirl.create :service } # services on wrong date
+			@service2 = FactoryGirl.create :service, date: @date, table: Table.create(number: "i1")
+			@service3 = FactoryGirl.create :service, date: @date, table: Table.create(number: "i2")
+			@otherService1 = FactoryGirl.create :service, table: Table.create(number: "i3")
+			@otherService2 = FactoryGirl.create :service, table: Table.create(number: "i4")
 		end
 
 		context "when user has administrator clearance" do
@@ -28,7 +30,9 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 				expect(service_response[0][:client]).to eql @service.client
 			end
 
-			xit "retuns its assigned table" do
+			it "retuns its assigned table number" do
+				service_response = json_response[:services]
+				expect(service_response[0][:table_number]).to eql @service.table.number
 			end
 
 			it { should respond_with 200 }
@@ -45,18 +49,22 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 	describe 'POST #create' do
 		before(:each) do
+			@table = Table.create(number: "c1")
 			@user = FactoryGirl.create :user
 			api_authorization_header @user.auth_token
 			@date = DateTime.new(2015, 06, 13)
 			@service_attributes = FactoryGirl.attributes_for :service, 
 								user: nil, administrator: nil, reservation: nil, date: @date,
-								status: "complete"
+								table: @table, status: "complete"
 		end
 
 		context "when user has administrator clearance" do
+			before do
+				@user.administrator!
+			end
+
 			context "and is successfully created" do
 				before do
-					@user.administrator!
 					post :create, service: @service_attributes, format: :json
 				end
 
@@ -67,7 +75,7 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 				it "should belong to the creating user" do
 					service_response = json_response[:service]
-					expect(service_response[:user_id]).to eql @user.id
+					expect(service_response[:coordinator_id]).to eql @user.id
 				end
 
 				it "should have the creating user as administrator" do
@@ -75,14 +83,30 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 					expect(service_response[:administrator_id]).to eql @user.id
 				end
 
-				xit "returns its assigned table" do
+				it "returns its assigned table" do
+					service_response = json_response[:service]
+					expect(service_response[:table_number]).to eql @table.number
 				end
 
 				it { should respond_with 201}
 			end
 
 			context "and it failed to be created" do
-				xit "pending table implementation"
+				before do
+					# another service occupies the table
+					@otherService = FactoryGirl.create :service, table: @table, date: @date
+					post :create, service: @service_attributes, format: :json
+				end
+
+				it "returns an errors json" do
+					service_response = json_response
+					expect(service_response).to have_key(:errors)
+				end
+
+				it "errors message has correct description" do
+					service_response = json_response
+					expect(service_response[:errors][:date]).to include "Table is already occupied for that date."
+				end
 			end
 		end
 
@@ -112,7 +136,42 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 			context "and updates critical attributes" do
 				# table, status, date
 				context "and the update is the table" do
-					xit "should update the table" do
+					before do
+						@table = Table.create(number: "u1")
+					end
+
+					context "and the table is available" do
+						before do
+							patch :update, { id: @service.id, 
+												service: { table: @table} }, format: :json
+						end
+
+						it "should respond with a json including the new table" do
+							service_response = json_response[:service]
+							expect(service_response[:table]).to eql @table
+						end
+
+						it { should respond_with 200 }
+					end
+
+					context "and the table is unavailable" do
+						before do
+							@otherService = FactoryGirl.create :service, table: @table
+							patch :update, { id: @service.id, 
+												service: { table: @table} }, format: :json
+						end
+
+						it "should respond with an errors json" do
+							service_response = json_response
+							expect(service_response).to have_key(:errors)
+						end
+
+						it "json should have the correct description" do
+							reservation_response = json_response
+							expect(reservation_response[:errors][:date]).to include "Table is already occupied for that date."
+						end
+
+						it { should respond_with 422 }
 					end
 				end
 

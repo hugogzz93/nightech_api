@@ -47,4 +47,11 @@ class User < ActiveRecord::Base
     self.update(supervisor_id: user.id)
   end
 
+  def build_service(attributes)
+    service = Service.new(attributes)
+    service.administrator = self
+    service.coordinator = self
+    service
+  end
+
 end
