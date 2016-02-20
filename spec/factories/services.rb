@@ -4,7 +4,7 @@ FactoryGirl.define do
 	association :coordinator, factory: :user
 	association :administrator, factory: :user, credentials: "administrator"
 	representative
-	reservation
+	# reservation
 	quantity { rand() * 9 + 1 }
 	comment { FFaker::Lorem.phrase }
 	date DateTime.now

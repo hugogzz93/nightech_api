@@ -9,7 +9,9 @@ class Service < ActiveRecord::Base
 
 	validates :quantity, numericality: { greater_than_or_equal_to: 1 }
 	validates :date, :quantity, :client, :administrator, :coordinator, :table, presence: true
-	validate :administrator_clearance, :schedule_uniqueness
+	validate :administrator_clearance, :schedule_uniqueness, :ensure_reservation_integrity
+
+	# before_update :ensure_reservation_integrity
 
 	enum status: [:incomplete, :complete]
 
@@ -70,7 +72,15 @@ class Service < ActiveRecord::Base
 	# There must not be two services using the same table on the same day
 	def schedule_uniqueness
 		errors.add(:date, "Table is already occupied for that date.") if
-											 Service.by_date(date).where(table_id: table.id).any? if
+											 Service.by_date(date).where(table_id: table.id).where.not(id: id).any? if
 											 date.present? && table.present?
+	end
+
+	# if the service has a reservation, it must not change the values
+	# set by the reservation (it does not check for values that can't be changed)
+	def ensure_reservation_integrity
+		if reservation.present?
+			errors.add(:date, "Service's date has been set by the reservation.") unless date == reservation.date
+		end
 	end
 end

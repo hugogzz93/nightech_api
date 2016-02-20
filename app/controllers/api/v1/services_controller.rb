@@ -24,12 +24,25 @@ class Api::V1::ServicesController < ApplicationController
 		end
 	end
 
+	def update
+		service = Service.find(params[:id])
+		if authorized_for_service_update(current_user) && service.update(service_update_params)
+			render json: service, status: 200, location: [:api, service]
+		else
+			if !authorized_for_service_creation current_user
+				head 403
+			else
+				render json: { errors: service.errors }, status: 422
+			end
+		end
+	end
+
 	def service_params
 		params.require(:service).permit(:representative_id, :reservation_id, :client, :comment, :quantity, :ammount, :date, :status, :table_id)
 	end
 
 	def service_update_params
-		params.require(:service).permit(:ammount, :status, :table_id)
+		params.require(:service).permit(:ammount, :status, :table_id, :date)
 	end
 	
 end

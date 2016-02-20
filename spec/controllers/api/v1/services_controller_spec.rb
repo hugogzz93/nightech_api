@@ -143,12 +143,12 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 					context "and the table is available" do
 						before do
 							patch :update, { id: @service.id, 
-												service: { table: @table} }, format: :json
+												service: { table_id: @table} }, format: :json
 						end
 
 						it "should respond with a json including the new table" do
 							service_response = json_response[:service]
-							expect(service_response[:table]).to eql @table
+							expect(service_response[:table_number]).to eql @table.number
 						end
 
 						it { should respond_with 200 }
@@ -158,7 +158,7 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 						before do
 							@otherService = FactoryGirl.create :service, table: @table
 							patch :update, { id: @service.id, 
-												service: { table: @table} }, format: :json
+												service: { table_id: @table} }, format: :json
 						end
 
 						it "should respond with an errors json" do
@@ -196,12 +196,19 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 				context "and the update is the date" do
 					before(:each) do
-						@date = DateTime.new(2015, 06, 12)
-						patch :update, { id: @service.id, 
-											service: { date: @date } }, format: :json
+						@date = DateTime.new(2015, 06, 13)
+
 					end
 
 					context "and the service has an associated reservation" do
+						before do
+							reservation = FactoryGirl.create :reservation
+							user = FactoryGirl.create :user, credentials: "administrator"
+							table = FactoryGirl.create :table, number: "up1"
+							@service = Service.create_from_reservation(reservation, user, table)
+							patch :update, { id: @service.id, 
+											service: { date: @date } }, format: :json
+						end
 						it "returns an errors json" do
 							service_response = json_response
 							expect(service_response).to have_key(:errors)
@@ -209,15 +216,15 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 						it "returns an error message" do
 							service_response = json_response
-							expect(service_response[:errors][:date]).to include("Service has date from associated reservation.")
+							expect(service_response[:errors][:date]).to include("Service's date has been set by the reservation.")
 						end
 
-						it { should respond_with 403}
+						it { should respond_with 422}
 					end
 
 					context "and the service has no reservation" do
 						before(:each) do
-							@service.update(representative: nil)
+							@service.update(reservation: nil)
 							patch :update, { id: @service.id, 
 											service: { date: @date } }, format: :json
 						end
@@ -229,7 +236,8 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 						it "response has updated attributes" do
 							service_response = json_response[:service]
-							expect(service_response[:date]).to eql @date.utc.to_s
+							response_date = DateTime.parse(service_response[:date])
+							expect(response_date).to eql @date
 						end
 
 						it { should respond_with 200 }
@@ -241,7 +249,7 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 				# quantity, ammount
 				before do
 					patch :update, { id: @service.id, 
-											service: { quantity: "4" } }, format: :json
+											service: { ammount: "10500" } }, format: :json
 				end
 
 				it "responds with a json of the service" do
@@ -251,7 +259,7 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 				it "the response has updated attributes" do
 					service_response = json_response[:service]
-					expect(service_response[:quantity]).to eql "4"
+					expect(service_response[:ammount]).to eql "10500.0"
 				end
 
 				it { should respond_with 200 }
