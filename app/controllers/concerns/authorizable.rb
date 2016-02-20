@@ -124,4 +124,8 @@ module Authorizable
 	def authorized_for_service_creation(user)
 		return has_clearance?(user, "administrator")? true : false
 	end
+
+	def authorized_for_service_deletion(user)
+		return has_clearance?(user, "administrator")? true : false
+	end
 end

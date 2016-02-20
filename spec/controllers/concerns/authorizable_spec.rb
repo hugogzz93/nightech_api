@@ -264,4 +264,26 @@ RSpec.describe Authorizable do
 			end
 		end
 	end
+
+	describe '#authorized_for_service_deletion' do
+		context "whent the user has administrator clearance" do
+			before do
+				@user = FactoryGirl.create :user, credentials: "administrator"
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_service_deletion @user).to be true
+			end
+		end
+
+		context "when user does not have administrator clearance" do
+			before do
+				@user = FactoryGirl.create :user
+			end
+
+			it "returns false" do
+				expect(authorization.authorized_for_service_deletion @user).to be false
+			end
+		end
+	end
 end

@@ -11,7 +11,7 @@ class Service < ActiveRecord::Base
 	validates :date, :quantity, :client, :administrator, :coordinator, :table, presence: true
 	validate :administrator_clearance, :schedule_uniqueness, :ensure_reservation_integrity
 
-	# before_update :ensure_reservation_integrity
+	after_destroy :set_reservation_status_pending!
 
 	enum status: [:incomplete, :complete]
 
@@ -82,5 +82,9 @@ class Service < ActiveRecord::Base
 		if reservation.present?
 			errors.add(:date, "Service's date has been set by the reservation.") unless date == reservation.date
 		end
+	end
+
+	def set_reservation_status_pending!
+		reservation.pending! if reservation.present?
 	end
 end

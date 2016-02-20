@@ -278,23 +278,19 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 	describe 'DELETE #destroy' do
 		before(:each) do
-			@user = FactoryGirl.create :user
+			@user = FactoryGirl.create :user, credentials: "administrator"
 			api_authorization_header @user.auth_token
-			@service = FactoryGirl.create :service
+			@reservation = FactoryGirl.create :reservation
+			table = FactoryGirl.create :table, number: "d1"
+			@service = Service.create_from_reservation @reservation, @user, table
 		end
 
 		context "when the user has administrator clearance" do
 			before do
-				@user.administrator!
 				delete :destroy, id: @service.id, format: :json
 			end
 
 			context "and the service has a reservation" do
-				before do
-					@reservation = FactoryGirl.create :reservation, user: @user, status: "accepted"
-					@service.update(reservation: @reservation)
-				end
-
 				it "updates the reservation to pending" do
 					expect(@reservation.status).to eql "pending"
 				end
@@ -306,6 +302,7 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 		context "when the user does not have administrator clearance" do
 			before do
+				@user.coordinator!
 				delete :destroy, id: @service.id, format: :json
 			end
 

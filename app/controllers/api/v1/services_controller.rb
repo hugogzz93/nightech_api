@@ -37,12 +37,24 @@ class Api::V1::ServicesController < ApplicationController
 		end
 	end
 
-	def service_params
-		params.require(:service).permit(:representative_id, :reservation_id, :client, :comment, :quantity, :ammount, :date, :status, :table_id)
+	def destroy
+		service = Service.find(params[:id])
+		if authorized_for_service_deletion(current_user)
+			service.destroy
+			head 204
+		else
+			head 403
+		end
 	end
 
-	def service_update_params
-		params.require(:service).permit(:ammount, :status, :table_id, :date)
-	end
+	private
+
+		def service_params
+			params.require(:service).permit(:representative_id, :reservation_id, :client, :comment, :quantity, :ammount, :date, :status, :table_id)
+		end
+
+		def service_update_params
+			params.require(:service).permit(:ammount, :status, :table_id, :date)
+		end
 	
 end
