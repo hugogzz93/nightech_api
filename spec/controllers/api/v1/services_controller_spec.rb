@@ -286,17 +286,48 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 		end
 
 		context "when the user has administrator clearance" do
-			before do
-				delete :destroy, id: @service.id, format: :json
-			end
 
 			context "and the service has a reservation" do
+				before do
+					delete :destroy, id: @service.id, format: :json
+				end
+
 				it "updates the reservation to pending" do
 					expect(@reservation.status).to eql "pending"
 				end
 			end
 
-			it { should respond_with 204 }
+			context "and the service is completed" do
+				before do
+					@service.complete!
+					delete :destroy, id: @service.id, format: :json
+				end
+
+				it { should respond_with 403 }
+			end
+
+			context "and the service is incomplete" do
+				before do
+					delete :destroy, id: @service.id, format: :json
+				end
+
+				it { should respond_with 204 }
+			end
+		end
+
+		context "when the user has super clearance" do
+			before do
+				@user.super!
+			end
+
+			context "and the service is complete" do
+				before do
+					@service.complete!
+					delete :destroy, id: @service.id, format: :json
+				end
+	
+				it { should respond_with 204 }
+			end
 
 		end
 

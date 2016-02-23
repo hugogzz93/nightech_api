@@ -125,7 +125,8 @@ module Authorizable
 		return has_clearance?(user, "administrator")? true : false
 	end
 
-	def authorized_for_service_deletion(user)
-		return has_clearance?(user, "administrator")? true : false
+	def authorized_for_service_deletion(user, service)
+		return has_clearance?(user, "administrator")? true : false if service.incomplete?
+		return has_clearance?(user, "super")? true : false
 	end
 end

@@ -266,23 +266,46 @@ RSpec.describe Authorizable do
 	end
 
 	describe '#authorized_for_service_deletion' do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@service = FactoryGirl.create :service
+		end
 		context "whent the user has administrator clearance" do
 			before do
-				@user = FactoryGirl.create :user, credentials: "administrator"
+				@user.administrator!
 			end
 
-			it "returns true" do
-				expect(authorization.authorized_for_service_deletion @user).to be true
+			context "and the service is incomplete" do
+				it "returns true" do
+					expect(authorization.authorized_for_service_deletion @user, @service).to be true
+				end
+			end
+
+			context "and the service is complete" do
+				before do
+					@service.complete!
+				end
+
+				it "returns false" do
+					expect(authorization.authorized_for_service_deletion(@user, @service)).to be false
+				end
+			end
+		end
+
+		context "when the user has super clearance" do
+			before do
+				@user.super!
+			end
+
+			it "return true" do
+					expect(authorization.authorized_for_service_deletion @user, @service).to be true
 			end
 		end
 
 		context "when user does not have administrator clearance" do
-			before do
-				@user = FactoryGirl.create :user
-			end
 
 			it "returns false" do
-				expect(authorization.authorized_for_service_deletion @user).to be false
+				expect(authorization.authorized_for_service_deletion @user, @service).to be false
 			end
 		end
 	end

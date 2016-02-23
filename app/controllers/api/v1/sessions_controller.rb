@@ -1,5 +1,4 @@
 class Api::V1::SessionsController < ApplicationController
-
 	def create
 		user_password = params[:session][:password]
 		user_email = params[:session][:email]
@@ -21,5 +20,4 @@ class Api::V1::SessionsController < ApplicationController
 		user.save
 		head 204
 	end
-
 end

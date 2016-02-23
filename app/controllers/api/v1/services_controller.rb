@@ -39,7 +39,7 @@ class Api::V1::ServicesController < ApplicationController
 
 	def destroy
 		service = Service.find(params[:id])
-		if authorized_for_service_deletion(current_user)
+		if authorized_for_service_deletion(current_user, service)
 			service.destroy
 			head 204
 		else
