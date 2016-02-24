@@ -113,4 +113,20 @@ module Authorizable
 		return false
 	end
 	
+	# Receives a user will authorize only if the user has
+	# administrator clearance.
+	def authorized_for_service_update(user)
+		return has_clearance?(user, "administrator")? true : false
+	end
+
+	# receives a user and will only authorize if the user has
+	# administrator credentials
+	def authorized_for_service_creation(user)
+		return has_clearance?(user, "administrator")? true : false
+	end
+
+	def authorized_for_service_deletion(user, service)
+		return has_clearance?(user, "administrator")? true : false if service.incomplete?
+		return has_clearance?(user, "super")? true : false
+	end
 end

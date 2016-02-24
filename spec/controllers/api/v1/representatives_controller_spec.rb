@@ -3,15 +3,15 @@ require 'rails_helper'
 RSpec.describe Api::V1::RepresentativesController, type: :controller do
 
 	describe "GET #index" do
-		context "when there are 4 representatives" do
+		context "when there are many representatives" do
 			before(:each) do
 				4.times { FactoryGirl.create :representative }
 				get :index
 			end
 
-			it "returns 4 records from the database" do
+			it "returns all records from the database" do
 				representative_response = json_response
-				expect(representative_response[:representatives].count).to eql 4
+				expect(representative_response[:representatives].count).to eql Representative.all.count
 			end
 
 			it { should respond_with 200 }

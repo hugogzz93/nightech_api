@@ -15,7 +15,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				get :index, date: @date.utc.to_s, format: :json
 			end
 
-			it "returns the correct ammount of reservations" do
+			it "returns all the reservations for that date" do
 				reservation_response = json_response[:reservations]
 				expect(reservation_response.count).to eql 2
 			end
@@ -38,7 +38,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				# Reservation with wrong date
 				FactoryGirl.create :reservation, user: @user, date: DateTime.new(2020, 03, 03)
 				# Target reservations
-				@reservation1 = FactoryGirl.create :reservation, user: @user, date: @date
+				@reservation1 = FactoryGirl.create :reservation, user: @user, date: @date, visible: true
 				@reservation2 = FactoryGirl.create :reservation, user: @user, date: @date
 				get :index, date: DateTime.new(2015, 3, 13).utc.to_s
 			end
@@ -51,6 +51,35 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			it "returns the correct reservations" do
 				reservation_response = json_response[:reservations]
 				expect(reservation_response[0][:client]).to eql @reservation1.client
+			end
+
+			context "when a service has visibility set to true" do
+				before(:each) do
+					@administrator = FactoryGirl.create :user, credentials: "administrator"
+					@table = Table.create(number: "i1")
+					@service = Service.create_from_reservation @reservation1, @administrator, @table
+					get :index, date: DateTime.new(2015, 3, 13).utc.to_s
+
+				end
+
+				it "returns the json with a table number" do
+					reservation_response = json_response[:reservations]
+					expect(reservation_response[0][:table_number]).to eql @table.number
+				end
+			end
+
+			context "when a service has visibility set to false" do
+				before(:each) do
+					@administrator = FactoryGirl.create :user, credentials: "administrator"
+					@table = Table.create(number: "i1")
+					@service = Service.create_from_reservation @reservation2, @administrator, @table
+					get :index, date: DateTime.new(2015, 3, 13).utc.to_s
+				end
+
+				it "does not return a table number with the json" do
+					reservation_response = json_response[:reservations]
+					expect(reservation_response[1][:table_number]).to eql nil
+				end
 			end
 
 			it { should respond_with 200 }
@@ -72,6 +101,11 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			it "returns a json with reservation" do
 				reservation_response = json_response[:reservation]
 				expect(reservation_response[:client]).to eql @reservation_attributes[:client]
+			end
+
+			it "belongs to the creating user" do
+				reservation_response = json_response[:reservation]
+				expect(reservation_response[:user_id]).to eql @user.id
 			end
 
 			it { should respond_with 201}
@@ -103,6 +137,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 		before(:each) do
 			@user = FactoryGirl.create :user
 			@reservation = FactoryGirl.create :reservation, user: @user
+			@table = Table.create(number: "p1")
 		end
 
 		context "when user without administrator clearance updates" do
@@ -116,11 +151,11 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 		end
 
 		context "when updating user has administrator clearance" do
-			before(:each) do
+			before do
 				@validUser = FactoryGirl.create :user, credentials: "administrator"
 				api_authorization_header @validUser.auth_token
 				patch :update, { id: @reservation.id, 
-								reservation: { status: "accepted", visible: false } }, format: :json
+								reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
 			end
 			
 			it "should return a json with the correct reservation" do
@@ -134,25 +169,72 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			end
 
 			it { should respond_with 200 }
+		end
 
-			# context "and update is unsuccessful" do
-			# 	before(:each) do
-			# 		@validUser = FactoryGirl.create :user, credentials: "administrator"
-			# 		api_authorization_header @validUser.auth_token
-			# 		patch :update, { id: @reservation.id, 
-			# 						reservation: { status: "acceptede", visible: false } }, format: :json
-			# 	end
+		context "when status is changed to accepted" do
+			context "and the table is available" do
+				before(:each) do
+					@validUser = FactoryGirl.create :user, credentials: "administrator"
+					api_authorization_header @validUser.auth_token
+					patch :update, { id: @reservation.id, 
+									reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
+					@reservation.reload
+				end
 
-			# 	it "returns an error json" do
-			# 		reservation_response = json_response[:reservation]
-			# 		expect(reservation_response).to have_ley(:errors)
-			# 	end
+				it "should have a service associated" do
+					expect(@reservation.service.present?).to be true
+				end
 
-			# 	it "error json has an error message" do
-			# 		reservation_response = json_response[:reservation]
-			# 		expect(reservation_response[:errors][:status]).to include "is invalid"
-			# 	end
-			# end
+				it "should accept the reservation" do
+					expect(@reservation.accepted?).to be true
+				end
+
+				it { should respond_with 200 }
+			end
+
+			context "and the table is unavailable" do
+				before(:each) do
+					@validUser = FactoryGirl.create :user, credentials: "administrator"
+					api_authorization_header @validUser.auth_token
+					@otherService = FactoryGirl.create :service, table: @table
+					patch :update, { id: @reservation.id, 
+									reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
+					@reservation.reload
+				end
+
+				it "should have not a service associated" do
+					expect(@reservation.service.present?).to be false
+				end
+
+				it "should retun an erros json" do
+					reservation_response = json_response
+					expect(reservation_response).to have_key(:errors)
+				end
+
+				it "errors json should have correct description" do
+					reservation_response = json_response
+					expect(reservation_response[:errors][:date]).to include "Table is already occupied for that date."
+				end
+
+				it "reservation should not be accepted" do
+					expect(@reservation.accepted?).to be false
+				end
+
+				it { should respond_with 422 }
+			end
+		end
+
+		context "whens status is changed to rejected" do
+			before(:each) do
+				@validUser = FactoryGirl.create :user, credentials: "administrator"
+				api_authorization_header @validUser.auth_token
+				patch :update, { id: @reservation.id, 
+								reservation: { status: "rejected", visible: false } }, format: :json
+			end
+
+			it "should have no service associated" do
+				expect(@reservation.service.present?).to be false
+			end
 		end
 	end
 

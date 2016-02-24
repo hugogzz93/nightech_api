@@ -24,7 +24,6 @@ RSpec.describe Authorizable do
 				expect(authorization.has_clearance?(@user, "super")).to be false
 			end
 		end
-
 	end
 
 	describe "#authorized_for_user_update" do
@@ -220,6 +219,94 @@ RSpec.describe Authorizable do
 				expect(authorization.authorized_for_res_deletion(@user, @reservation)).to be false
 			end
 		end
+	end
 
+	describe '#authorized_for_service_update' do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@service = FactoryGirl.create :service
+		end
+
+		context "when user has administrator clearance" do
+			before do
+				@user.administrator!
+			end
+			
+			it "returns true" do
+				expect(authorization.authorized_for_service_update(@user)).to be true
+			end
+		end
+
+		context "when user doesn't have administrator clearance" do
+			it "returns false" do
+				expect(authorization.authorized_for_service_update(@user)).to be false
+			end
+		end
+	end
+
+	describe '#authorized_for_service_creation' do
+		context "when user is super" do
+			before do
+				@user = FactoryGirl.create :user, credentials: "super"
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_service_creation @user).to be true
+			end
+		end
+		context "when user is coordinator" do
+			before do
+				@user = FactoryGirl.create :user
+			end
+
+			it "returns true" do
+				expect(authorization.authorized_for_service_creation @user).to be false
+			end
+		end
+	end
+
+	describe '#authorized_for_service_deletion' do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@service = FactoryGirl.create :service
+		end
+		context "whent the user has administrator clearance" do
+			before do
+				@user.administrator!
+			end
+
+			context "and the service is incomplete" do
+				it "returns true" do
+					expect(authorization.authorized_for_service_deletion @user, @service).to be true
+				end
+			end
+
+			context "and the service is complete" do
+				before do
+					@service.complete!
+				end
+
+				it "returns false" do
+					expect(authorization.authorized_for_service_deletion(@user, @service)).to be false
+				end
+			end
+		end
+
+		context "when the user has super clearance" do
+			before do
+				@user.super!
+			end
+
+			it "return true" do
+					expect(authorization.authorized_for_service_deletion @user, @service).to be true
+			end
+		end
+
+		context "when user does not have administrator clearance" do
+
+			it "returns false" do
+				expect(authorization.authorized_for_service_deletion @user, @service).to be false
+			end
+		end
 	end
 end

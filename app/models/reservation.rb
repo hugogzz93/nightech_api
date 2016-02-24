@@ -1,9 +1,12 @@
 class Reservation < ActiveRecord::Base
 	belongs_to :user
 	belongs_to :representative
+	has_one :service
 
 	validates :client, :user, :date, presence: :true
 	validates :quantity, numericality: {greater_than_or_equal_to: 1}
+
+	# after_update :invisible! if :pending?
 
 	enum status: [:pending, :accepted, :rejected]
 	
@@ -24,5 +27,17 @@ class Reservation < ActiveRecord::Base
 
 	def belongs_to!(user)
 		self.update(user_id: user.id)
+	end
+
+	def visible?
+		return visible
+	end
+
+	def visible!
+		self.update(visible: true)
+	end
+
+	def invisible!
+		self.update(visible: false)
 	end
 end
