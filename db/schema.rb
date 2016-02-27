@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160130193320) do
+ActiveRecord::Schema.define(version: 20160224063713) do
 
   create_table "representatives", force: :cascade do |t|
     t.string   "name",       default: ""
@@ -76,6 +76,7 @@ ActiveRecord::Schema.define(version: 20160130193320) do
     t.integer  "credentials",            default: 0
     t.integer  "supervisor_id"
     t.string   "timezone",               default: "Monterrey", null: false
+    t.string   "name",                   default: "",          null: false
   end
 
   add_index "users", ["auth_token"], name: "index_users_on_auth_token", unique: true
