@@ -34,7 +34,7 @@ class Service < ActiveRecord::Base
 
 	# Will return all services on that day
 	def self.by_date(date)
-		Service.where(date: date..date.end_of_day)
+		Service.where(date: date.beginning_of_day..date.end_of_day)
 	end
 
 
@@ -72,7 +72,7 @@ class Service < ActiveRecord::Base
 	# There must not be two services using the same table on the same day
 	def schedule_uniqueness
 		errors.add(:date, "Table is already occupied for that date.") if
-											 Service.by_date(date).where(table_id: table.id).where.not(id: id).any? if
+											 Service.by_date(date).where(table_id: table.id, status: "incomplete").where.not(id: id).any? if
 											 date.present? && table.present?
 	end
 

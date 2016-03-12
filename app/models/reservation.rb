@@ -18,7 +18,7 @@ class Reservation < ActiveRecord::Base
 	# Description: 
 	# 	Will return all the reservations for the indicated day
 	def self.by_date(date)
-		Reservation.where(date: date..date.end_of_day)
+		Reservation.where(date: date.beginning_of_day..date.end_of_day)
 	end
 
 	def belongs_to?(user)

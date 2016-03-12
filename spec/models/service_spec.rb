@@ -184,4 +184,33 @@ RSpec.describe Service, type: :model do
       end
     end
   end
+
+  describe '#schedule_uniqueness' do
+    before(:each) do
+      @table = Table.create(number: "s1")
+      @date = DateTime.now
+      user = FactoryGirl.create :user, credentials: "administrator"
+      @service1 = FactoryGirl.create :service, table: @table, date: @date
+      @service2 = FactoryGirl.build :service, table: @table, date: @date
+
+    end
+
+    context "when the table is available" do
+      before do
+        @service1.complete!
+      end
+
+      it "should be valid" do
+        expect(@service2.valid?).to be true
+      end
+
+    end
+
+    context "when the table is unavailable" do
+      it "should not valid" do
+        debugger
+        expect(@service2.valid?).to be false
+      end
+    end
+  end
 end
