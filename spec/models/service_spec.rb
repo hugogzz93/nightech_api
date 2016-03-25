@@ -208,7 +208,6 @@ RSpec.describe Service, type: :model do
 
     context "when the table is unavailable" do
       it "should not valid" do
-        debugger
         expect(@service2.valid?).to be false
       end
     end
