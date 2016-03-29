@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
                                  foreign_key: 'coordinator_id', dependent: :destroy
                                  
   has_many :administered_services, class_name: "Service",
-                                 foreign_key: 'administrator_id', dependent: :destroy
+                                 foreign_key: 'administrator_id'
 
 
 	enum credentials: [:coordinator, :administrator, :super]
