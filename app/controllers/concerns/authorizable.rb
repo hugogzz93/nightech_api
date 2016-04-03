@@ -96,7 +96,7 @@ module Authorizable
 	# 	will return true only if the user has administrator clearance
 
 	def authorized_for_res_update(updater, reservation)
-		return updater.administrator? ? true: false
+		return has_clearance?(updater, "administrator") ? true: false
 	end
 
 	# Function: authorized_for_res_deletion
