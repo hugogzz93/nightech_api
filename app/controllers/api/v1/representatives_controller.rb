@@ -3,7 +3,7 @@ class Api::V1::RepresentativesController < ApplicationController
 	respond_to :json
 
 	def show
-		respond_with Representative.find(params[:id])		
+		respond_with Representative.find(params[:id])
 	end
 
 	def index
@@ -11,25 +11,23 @@ class Api::V1::RepresentativesController < ApplicationController
 	end
 
 	def create
-    	representative = current_user.representatives.build(representative_params)
-    	if representative.save
+		representative = current_user.representatives.build(representative_params)
+		if representative.save
 	      	render json: representative, status: 201, location: [:api, representative]
-	    else
+		else
 	      render json: { errors: representative.errors }, status: 422
-	    end
+		end
 	end
 
 	def update
 		representative = Representative.find(params[:id])
 		if authorized_for_rep_update(current_user, representative) && 
-						representative.update(representative_params)
+		   representative.update(representative_params)
 			render json: representative, status: 200, location: [:api, representative]
-	    else
-	    	if !authorized_for_rep_update(current_user, representative)
-		    	head 403
-		    else
-			    render json: { errors: representative.errors }, status: 422
-			end				
+		elsif !authorized_for_rep_update(current_user, representative)
+		    head 403
+		else
+			render json: { errors: representative.errors }, status: 422
 		end		
 	end
 
@@ -48,5 +46,4 @@ class Api::V1::RepresentativesController < ApplicationController
     	def representative_params
 	      params.require(:representative).permit(:name)
 	    end
-
 end

@@ -66,7 +66,7 @@ module Authorizable
 	# 	higher
 
 	def authorized_for_rep_update(updater, representative)
-		return true if representative.belongs_to?(updater) || has_clearance?(updater, "administrator")
+		return true if representative.belongs_to?(updater) || has_clearance?(updater, 'administrator')
 		return false
 	end
 
@@ -82,7 +82,7 @@ module Authorizable
 	# 	higher
 
 	def authorized_for_rep_deletion(deleter, representative)
-		return true if representative.belongs_to?(deleter) || has_clearance?(deleter, "administrator")
+		return true if representative.belongs_to?(deleter) || has_clearance?(deleter, 'administrator')
 		return false
 	end
 
@@ -95,8 +95,8 @@ module Authorizable
 	# Description: 
 	# 	will return true only if the user has administrator clearance
 
-	def authorized_for_res_update(updater, reservation)
-		return has_clearance?(updater, "administrator") ? true: false
+	def authorized_for_res_update(updater)
+		return has_clearance?(updater, 'administrator') ? true: false
 	end
 
 	# Function: authorized_for_res_deletion
@@ -109,24 +109,24 @@ module Authorizable
 	# 	will return true only if the deleter has administrator clearance
 	# 	or is owner
 	def authorized_for_res_deletion(deleter, reservation)
-		return true if reservation.belongs_to?(deleter) || has_clearance?(deleter, "administrator")
+		return true if reservation.belongs_to?(deleter) || has_clearance?(deleter, 'administrator')
 		return false
 	end
 	
 	# Receives a user will authorize only if the user has
 	# administrator clearance.
 	def authorized_for_service_update(user)
-		return has_clearance?(user, "administrator")? true : false
+		return has_clearance?(user, 'administrator')? true : false
 	end
 
 	# receives a user and will only authorize if the user has
 	# administrator credentials
 	def authorized_for_service_creation(user)
-		return has_clearance?(user, "administrator")? true : false
+		return has_clearance?(user, 'administrator') ? true : false
 	end
 
 	def authorized_for_service_deletion(user, service)
-		return has_clearance?(user, "administrator")? true : false if service.incomplete?
-		return has_clearance?(user, "super")? true : false
+		return has_clearance?(user, 'administrator') ? true : false if service.incomplete?
+		return has_clearance?(user, 'super') ? true : false
 	end
 end

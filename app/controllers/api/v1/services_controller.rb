@@ -4,7 +4,7 @@ class Api::V1::ServicesController < ApplicationController
 	def index
 		date = DateTime.parse(params[:date])
 		services = Service.by_date(date)
-		if has_clearance?(current_user, "administrator")
+		if has_clearance?(current_user, 'administrator')
 			render json: services, status: 200
 		else
 			head 403
@@ -15,12 +15,10 @@ class Api::V1::ServicesController < ApplicationController
 		service = current_user.build_service(service_params)
 		if authorized_for_service_creation(current_user) && service.save
 			render json: service, status: 201, location: [:api, service]
+		elsif !authorized_for_service_creation current_user
+			head 403
 		else
-			if !authorized_for_service_creation current_user
-				head 403
-			else
-				render json: { errors: service.errors }, status: 422
-			end
+			render json: { errors: service.errors }, status: 422
 		end
 	end
 
@@ -28,12 +26,10 @@ class Api::V1::ServicesController < ApplicationController
 		service = Service.find(params[:id])
 		if authorized_for_service_update(current_user) && service.update(service_update_params)
 			render json: service, status: 200, location: [:api, service]
+		elsif !authorized_for_service_creation current_user
+			head 403
 		else
-			if !authorized_for_service_creation current_user
-				head 403
-			else
-				render json: { errors: service.errors }, status: 422
-			end
+			render json: { errors: service.errors }, status: 422
 		end
 	end
 

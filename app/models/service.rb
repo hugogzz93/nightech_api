@@ -13,7 +13,7 @@ class Service < ActiveRecord::Base
 
 	after_destroy :set_reservation_status_pending!
 
-	enum status: [:incomplete, :complete]
+	enum status: [:incomplete, :seated, :complete]
 
 	# Receives a reservation object and copies its 
 	# attributes into the service, also uses the 
@@ -69,7 +69,7 @@ class Service < ActiveRecord::Base
 												 administrator.present?
 	end
 
-	# There must not be two services using the same table on the same day
+	# There must not be two services using the same table at the same time
 	def schedule_uniqueness
 		errors.add(:date, "Table is already occupied for that date.") if
 											 Service.by_date(date).where(table_id: table.id, status: "incomplete").where.not(id: id).any? if

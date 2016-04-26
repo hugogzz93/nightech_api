@@ -173,7 +173,7 @@ RSpec.describe Authorizable do
 
 		context "when user does not have administrator clearance" do
 			it "returns false" do
-				expect(authorization.authorized_for_res_update(@user, @reservation)).to eql false
+				expect(authorization.authorized_for_res_update(@user)).to eql false
 			end
 		end
 
@@ -183,7 +183,7 @@ RSpec.describe Authorizable do
 			end
 			
 			it "returns true" do
-				expect(authorization.authorized_for_res_update(@user, @reservation)).to eql true
+				expect(authorization.authorized_for_res_update(@user)).to eql true
 			end
 		end
 	end

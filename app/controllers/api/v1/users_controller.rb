@@ -14,7 +14,7 @@ class Api::V1::UsersController < ApplicationController
 		if current_user.outranks?(user) && user.save
 			render json: user, status: 201, location: [:api, user]
 		else
-			user.errors[:credentials] = "Insufficient priviledges" unless current_user.outranks? user
+			user.errors[:credentials] = 'Insufficient priviledges' unless current_user.outranks? user
 			render json: { errors: user.errors }, status: 422
 		end
 	end
@@ -25,7 +25,7 @@ class Api::V1::UsersController < ApplicationController
 		if  authorized_for_user_update(current_user, user, params[:user]) && user.update(updated_attributes)
 			render json: user, status: 200, location: [:api, user]
 		else
-			user.errors[:credentials] = "Insufficient priviledges" unless authorized_for_user_update(current_user, user, params[:user])
+			user.errors[:credentials] = 'Insufficient priviledges' unless authorized_for_user_update(current_user, user, params[:user])
 			render json: { errors: user.errors }, status: 422
 		end
 	end

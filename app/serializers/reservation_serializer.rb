@@ -5,4 +5,12 @@ class ReservationSerializer < ActiveModel::Serializer
   	def table_number
 		object.service.table.number if object.service && visible
   	end
+
+  	def status
+  		if object.service && object.service.status == "seated"
+  			"seated"
+  		else
+  			object.status
+  		end
+  	end
 end
