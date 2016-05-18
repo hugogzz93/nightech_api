@@ -38,7 +38,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 	        user = FactoryGirl.create :user
 	        @representative_attributes = FactoryGirl.attributes_for :representative
 	        api_authorization_header user.auth_token
-	        post :create, { user_id: user.id, representative: @representative_attributes }
+	        post :create, { representative: @representative_attributes }
 	      end
 
 	      it "renders the json representation for the representative record just created" do
@@ -59,7 +59,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 		context "when owner coordinator updates" do
 				before(:each) do
 					api_authorization_header @user.auth_token
-					patch :update, { user_id: @user.id, id: @representative.id, 
+					patch :update, { id: @representative.id, 
 										representative: { name: "New Name" } }, format: :json
 				end
 
@@ -80,7 +80,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 			context "and has administrator clearance" do
 				before(:each) do
 					@otherUser.administrator!
-					patch :update, { user_id: @otherUser.id, id: @representative.id, 
+					patch :update, { id: @representative.id, 
 										representative: { name: "New Name" } }, format: :json
 				end
 
@@ -94,7 +94,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 
 			context "and has coordinator credentials" do
 				before do
-					patch :update, { user_id: @otherUser.id, id: @representative.id, 
+					patch :update, { id: @representative.id, 
 										representative: { name: "New Name" } }, format: :json
 				end
 
@@ -112,7 +112,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 		context "when destroying user is owner" do
 			before do
 				api_authorization_header @user.auth_token
-				delete :destroy, { user_id: @user.id, id: @representative.id }
+				delete :destroy, { id: @representative.id }
 			end
 			it { should respond_with 204 }
 		end
@@ -126,7 +126,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 				before do
 					@otherUser.administrator!
 					api_authorization_header @otherUser.auth_token
-					delete :destroy, { user_id: @otherUser.id, id: @representative.id }
+					delete :destroy, { id: @representative.id }
 				end
 				it { should respond_with 204 }
 			end
@@ -134,7 +134,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 			context "and does not have administrator clearance" do
 				before do
 					api_authorization_header @otherUser.auth_token
-					delete :destroy, { user_id: @otherUser.id, id: @representative.id }
+					delete :destroy, { id: @representative.id }
 				end
 				it { should respond_with 403 }
 			end
