@@ -124,30 +124,33 @@ RSpec.describe Reservation, type: :model do
 		end
 	end
 
-	# describe ".status_change_handler" do
-	# 	before(:each) do
-	# 		@reservation = FactoryGirl.create :reservation
-	# 		@administrator = FactoryGirl.create :user, credentials: "administrator"
-	# 	end
+	describe "toggleVisibility!" do
+		before(:each) do
+			@user = FactoryGirl.create :user
+			@reservation = FactoryGirl.create :reservation
+			@reservation.visible!
+		end
 
-	# 	context "when status is changed to accepted" do
-	# 		before do
-	# 			@reservation.accepted!
-	# 		end
+		context "when it's visible" do
+			before do 
+				@reservation.toggleVisibility!
+			end
 
-	# 		it "should have a service associated" do
-	# 			expect(@reservation.service.present?).to be true
-	# 		end
-	# 	end
+			it "becomes invisible" do
+				expect(@reservation.visible?).to be false
+			end
+		end
 
-	# 	context "when status is changed to rejected" do
-	# 		before do
-	# 			@reservation.rejected!
-	# 		end
+		context "when it's invisible" do
+			before do
+				@reservation.invisible!
+				@reservation.toggleVisibility!
+			end
 
-	# 		it "should have no service associated" do
-	# 			expect(@reservation.service.present?).to be false
-	# 		end
-	# 	end
-	# end
+			it "becomes visible" do
+				expect(@reservation.visible?).to be true
+			end
+		end
+	end
+
 end

@@ -40,4 +40,8 @@ class Reservation < ActiveRecord::Base
 	def invisible!
 		self.update(visible: false)
 	end
+
+	def toggleVisibility!
+		self.update(visible: !self.visible?)
+	end
 end
