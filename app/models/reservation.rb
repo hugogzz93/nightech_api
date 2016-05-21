@@ -5,6 +5,7 @@ class Reservation < ActiveRecord::Base
 
 	validates :client, :user, :date, presence: :true
 	validates :quantity, numericality: {greater_than_or_equal_to: 1}
+	after_update :status_change_handler
 
 	# after_update :invisible! if :pending?
 
@@ -43,5 +44,15 @@ class Reservation < ActiveRecord::Base
 
 	def toggleVisibility!
 		self.update(visible: !self.visible?)
+	end
+
+	# Function: status_change_handler
+	# Parameters: 
+	
+	# Description: 
+	# 	will delete services if the status changes from 
+	# 	accepted to pending
+	def status_change_handler
+		service.destroy if pending? && service
 	end
 end

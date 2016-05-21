@@ -8,4 +8,38 @@ RSpec.describe Table, type: :model do
   it { should respond_to :services }
 
   it { should validate_uniqueness_of(:number) }
+
+  describe "occupied?" do
+  	before(:each) do
+  		@table = Table.create(number: "t1")
+  		@date = DateTime.now
+  	end
+
+  	context "when there is a service associated" do
+  		context "on a different date" do
+  			before do
+		  		@service = FactoryGirl.create :service, table: @table, date: @date + 1
+	  		end
+
+  			it "returns false" do
+  				expect(@table.occupied?(@date)).to be false
+  			end
+  		end
+
+  		context "on the same date" do
+  			before do
+		  		@service = FactoryGirl.create :service, table: @table, date: @date
+	  		end
+  			it "returns true" do
+  				expect(@table.occupied?(@date)).to be true
+	  		end
+  		end
+  	end
+
+  	context "when there is no service associated" do
+  		it "returns false" do
+			expect(@table.occupied?(@date)).to be false
+  		end
+  	end
+  end
 end

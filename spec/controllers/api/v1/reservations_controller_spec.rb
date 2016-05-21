@@ -171,69 +171,87 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			it { should respond_with 200 }
 		end
 
-		context "when status is changed to accepted" do
-			context "and the table is available" do
-				before(:each) do
-					@validUser = FactoryGirl.create :user, credentials: "administrator"
-					api_authorization_header @validUser.auth_token
-					patch :update, { id: @reservation.id, 
-									reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
-					@reservation.reload
-				end
-
-				it "should have a service associated" do
-					expect(@reservation.service.present?).to be true
-				end
-
-				it "should accept the reservation" do
-					expect(@reservation.accepted?).to be true
-				end
-
-				it { should respond_with 200 }
-			end
-
-			context "and the table is unavailable" do
-				before(:each) do
-					@validUser = FactoryGirl.create :user, credentials: "administrator"
-					api_authorization_header @validUser.auth_token
-					@otherService = FactoryGirl.create :service, table: @table
-					patch :update, { id: @reservation.id, 
-									reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
-					@reservation.reload
-				end
-
-				it "should have not a service associated" do
-					expect(@reservation.service.present?).to be false
-				end
-
-				it "should retun an erros json" do
-					reservation_response = json_response
-					expect(reservation_response).to have_key(:errors)
-				end
-
-				it "errors json should have correct description" do
-					reservation_response = json_response
-					expect(reservation_response[:errors][:date]).to include "Table is already occupied for that date."
-				end
-
-				it "reservation should not be accepted" do
-					expect(@reservation.accepted?).to be false
-				end
-
-				it { should respond_with 422 }
-			end
-		end
-
-		context "whens status is changed to rejected" do
+		context "when status changes" do
+			
 			before(:each) do
 				@validUser = FactoryGirl.create :user, credentials: "administrator"
 				api_authorization_header @validUser.auth_token
-				patch :update, { id: @reservation.id, 
-								reservation: { status: "rejected", visible: false } }, format: :json
 			end
 
-			it "should have no service associated" do
-				expect(@reservation.service.present?).to be false
+			context "from pending to accepted" do
+				context "and the table is available" do
+					before(:each) do
+						patch :update, { id: @reservation.id, 
+										reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
+						@reservation.reload
+					end
+
+					it "should have a service associated" do
+						expect(@reservation.service.present?).to be true
+					end
+
+					it "should accept the reservation" do
+						expect(@reservation.accepted?).to be true
+					end
+
+					it { should respond_with 200 }
+
+					context "then changes from accepted to pending" do
+						before(:each) do
+							patch :update, { id: @reservation.id, 
+											reservation: { status: "pending", visible: false } }, format: :json
+							@reservation.reload
+						end
+
+						it "should free up the table" do
+							expect(@table.occupied?(@reservation.date)).to be false
+						end
+
+						it "should destroy the associated service" do
+							expect(@reservation.service.present?).to be false
+						end
+					end
+				end
+
+				context "and the table is unavailable" do
+					before(:each) do
+						@otherService = FactoryGirl.create :service, table: @table
+						patch :update, { id: @reservation.id, 
+										reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
+						@reservation.reload
+					end
+
+					it "should have not a service associated" do
+						expect(@reservation.service.present?).to be false
+					end
+
+					it "should retun an erros json" do
+						reservation_response = json_response
+						expect(reservation_response).to have_key(:errors)
+					end
+
+					it "errors json should have correct description" do
+						reservation_response = json_response
+						expect(reservation_response[:errors][:date]).to include "Table is already occupied for that date."
+					end
+
+					it "reservation should not be accepted" do
+						expect(@reservation.accepted?).to be false
+					end
+
+					it { should respond_with 422 }
+				end
+			end
+
+			context "from pending to rejected" do
+				before(:each) do
+					patch :update, { id: @reservation.id, 
+									reservation: { status: "rejected", visible: false } }, format: :json
+				end
+
+				it "should have no service associated" do
+					expect(@reservation.service.present?).to be false
+				end
 			end
 		end
 	end

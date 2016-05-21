@@ -84,7 +84,8 @@ class Service < ActiveRecord::Base
 		end
 	end
 
+	# will change the reservation to pending if the service was destroyed
 	def set_reservation_status_pending!
-		reservation.pending! if reservation.present?
+		reservation.pending! if reservation.present? && !reservation.pending?
 	end
 end

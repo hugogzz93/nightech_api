@@ -153,4 +153,32 @@ RSpec.describe Reservation, type: :model do
 		end
 	end
 
+	# describe "status change" do
+	# 	before(:each) do
+	# 		@reservation = FactoryGirl.create :reservation
+	# 		@user = @reservation.user
+	# 		@table = FactoryGirl.create :table
+	# 	end
+
+	# 	context "when status changes from pending to accepted" do
+	# 		it "should create a service" do
+	# 		end
+
+	# 		it "should assign a valid table to the service" do
+	# 		end
+	# 	end
+
+	# 	context "when status changes from pending to rejected" do
+	# 		# nothing
+	# 	end
+
+	# 	context "when status changes from accepted to pending" do
+	# 		it "should delete the associated service" do
+	# 		end
+
+	# 		it "should free up the table" do
+	# 		end
+	# 	end
+	# end
+
 end
