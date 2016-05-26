@@ -4,9 +4,11 @@ class User < ActiveRecord::Base
   	devise :database_authenticatable, :registerable,
         	:recoverable, :rememberable, :trackable, :validatable
 
-	validates :auth_token, uniqueness: true
+  validates :auth_token, uniqueness: true
+	validates :organization, presence: true
 	before_create :generate_authentication_token!
 
+  belongs_to :organization
   belongs_to :supervisor, class_name: "User"
   has_many :subordinates, class_name: "User", 
                     foreign_key: "supervisor_id"

@@ -7,11 +7,16 @@ RSpec.describe Table, type: :model do
   it { should respond_to :number }
   it { should respond_to :services }
 
-  it { should validate_uniqueness_of(:number) }
+  it { should respond_to(:organization) }
+  it { should belong_to(:organization)}
+  it { should validate_presence_of(:organization) }
+  
+
+  it { should validate_uniqueness_of(:number).case_insensitive }
 
   describe "occupied?" do
   	before(:each) do
-  		@table = Table.create(number: "t1")
+  		@table = FactoryGirl.create :table, number: "t1"
   		@date = DateTime.now
   	end
 

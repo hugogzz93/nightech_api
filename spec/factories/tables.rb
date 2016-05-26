@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :table do
-    number "1"
+  	organization
+    number "a1"
   end
 
 end

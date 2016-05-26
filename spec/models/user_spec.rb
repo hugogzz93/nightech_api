@@ -12,13 +12,18 @@ RSpec.describe User, type: :model do
   it { should respond_to(:auth_token) }
   it { should respond_to(:credentials) }
   it { should respond_to(:representatives) }
+  it { should respond_to(:organization) }
+
   it { should have_many(:representatives) }
   it { should have_many(:reservations) }
   it { should have_many(:coordinated_services) }
   it { should have_many(:administered_services) }
 
+  it { should belong_to(:organization)}
+
   it { should be_valid }
 
+  it { should validate_presence_of(:organization) }
   it { should validate_presence_of(:email) }
   # it { should validate_uniqueness_of(:email) }
   it { should validate_uniqueness_of(:auth_token) }

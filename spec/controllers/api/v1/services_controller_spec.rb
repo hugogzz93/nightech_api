@@ -7,11 +7,17 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 			@user = FactoryGirl.create :user
 			api_authorization_header @user.auth_token
 			@date = DateTime.new(2015, 06, 13)
+
+			table1 = FactoryGirl.create :table, number: "i1"
+			table2 = FactoryGirl.create :table, number: "i2"
+			table3 = FactoryGirl.create :table, number: "i3"
+			table4 = FactoryGirl.create :table, number: "i4"
+
 			@service = FactoryGirl.create :service, date: @date # service on target date
-			@service2 = FactoryGirl.create :service, date: @date, table: Table.create(number: "i1")
-			@service3 = FactoryGirl.create :service, date: @date, table: Table.create(number: "i2")
-			@otherService1 = FactoryGirl.create :service, table: Table.create(number: "i3")
-			@otherService2 = FactoryGirl.create :service, table: Table.create(number: "i4")
+			@service2 = FactoryGirl.create :service, date: @date, table: table1
+			@service3 = FactoryGirl.create :service, date: @date, table: table2
+			@otherService1 = FactoryGirl.create :service, table: table3
+			@otherService2 = FactoryGirl.create :service, table: table4
 		end
 
 		context "when user has administrator clearance" do
@@ -49,7 +55,7 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 
 	describe 'POST #create' do
 		before(:each) do
-			@table = Table.create(number: "c1")
+			@table = FactoryGirl.create :table, number: "c1"
 			@user = FactoryGirl.create :user
 			api_authorization_header @user.auth_token
 			@date = DateTime.new(2015, 06, 13)
@@ -137,7 +143,7 @@ RSpec.describe Api::V1::ServicesController, type: :controller do
 				# table, status, date
 				context "and the update is the table" do
 					before do
-						@table = Table.create(number: "u1")
+						@table = FactoryGirl.create :table, number: "u1"
 					end
 
 					context "and the table is available" do

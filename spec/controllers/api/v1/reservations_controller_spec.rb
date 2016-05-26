@@ -56,7 +56,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			context "when a service has visibility set to true" do
 				before(:each) do
 					@administrator = FactoryGirl.create :user, credentials: "administrator"
-					@table = Table.create(number: "i1")
+					@table = Factorygirl.create :table, number: "i1"
 					@service = Service.create_from_reservation @reservation1, @administrator, @table
 					get :index, date: DateTime.new(2015, 3, 13).utc.to_s
 
@@ -71,7 +71,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			context "when a service has visibility set to false" do
 				before(:each) do
 					@administrator = FactoryGirl.create :user, credentials: "administrator"
-					@table = Table.create(number: "i1")
+					@table = Factorygirl.create :table, number: "i1"
 					@service = Service.create_from_reservation @reservation2, @administrator, @table
 					get :index, date: DateTime.new(2015, 3, 13).utc.to_s
 				end
@@ -137,7 +137,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 		before(:each) do
 			@user = FactoryGirl.create :user
 			@reservation = FactoryGirl.create :reservation, user: @user
-			@table = Table.create(number: "p1")
+			@table = Factorygirl.create :table, number: "p1"
 		end
 
 		context "when user without administrator clearance updates" do

@@ -1,6 +1,10 @@
 class Table < ActiveRecord::Base
 	has_many :services, dependent: :destroy
-	validates :number, uniqueness: true
+	validates :number, uniqueness: {:case_sensitive => false}
+
+  	belongs_to :organization
+	validates :organization, presence: true
+
 
 	# returns true if there is a service associated with the
 	# table on the given date

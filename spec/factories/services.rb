@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :service do
     client { FFaker::Name.name }
+  	organization
 	association :coordinator, factory: :user
 	association :administrator, factory: :user, credentials: "administrator"
 	representative

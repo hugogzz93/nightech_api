@@ -6,10 +6,12 @@ class Service < ActiveRecord::Base
 	belongs_to :representative
 	belongs_to :reservation
 	belongs_to :table
+	belongs_to :organization
 
 	validates :quantity, numericality: { greater_than_or_equal_to: 1 }
 	validates :date, :quantity, :client, :administrator, :coordinator, :table, presence: true
 	validate :administrator_clearance, :schedule_uniqueness, :ensure_reservation_integrity
+	validates :organization, presence: true
 
 	after_destroy :set_reservation_status_pending!
 

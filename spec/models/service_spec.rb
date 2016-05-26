@@ -30,6 +30,10 @@ RSpec.describe Service, type: :model do
   it { should validate_presence_of(:coordinator) }
   it { should validate_presence_of(:table) }
 
+  it { should respond_to(:organization) }
+  it { should belong_to(:organization)}
+  it { should validate_presence_of(:organization) }
+
   describe "validates administrator's clearance" do
     before do
       @user = FactoryGirl.create :user
@@ -59,7 +63,7 @@ RSpec.describe Service, type: :model do
 
   describe "table schedules" do
     before do
-      @table = Table.create(number: "1")
+      @table = FactoryGirl.create :table, number: "s1"
       @date = DateTime.now      
     end
 
@@ -107,7 +111,7 @@ RSpec.describe Service, type: :model do
 
   describe ".create_from_reservation" do
     before(:each) do
-      @table = Table.create(number: "rc1")
+      @table = FactoryGirl.create :table, number: "rc1"
       @user = FactoryGirl.create :user, credentials: "administrator"
       @reservation = FactoryGirl.create :reservation
     end
@@ -124,10 +128,10 @@ RSpec.describe Service, type: :model do
 
   describe ".by_date" do
     before(:each) do
-      @table1 = Table.create(number: 11)
-      @table2 = Table.create(number: 12)
-      @table3 = Table.create(number: 13)
-      @table4 = Table.create(number: 14)
+      @table1 = FactoryGirl.create :table, number: 11
+      @table2 = FactoryGirl.create :table, number: 12
+      @table3 = FactoryGirl.create :table, number: 13
+      @table4 = FactoryGirl.create :table, number: 14
       @service1 = FactoryGirl.create :service, date: DateTime.new(2015, 03, 30, 3, 12, 15), table: @table1
       @service2 = FactoryGirl.create :service, date: DateTime.new(2015, 1, 12, 12, 32, 15), table: @table2
       @service3 = FactoryGirl.create :service, date: DateTime.new(2015, 1, 12, 14, 31, 55), table: @table3
@@ -187,7 +191,7 @@ RSpec.describe Service, type: :model do
 
   describe '#schedule_uniqueness' do
     before(:each) do
-      @table = Table.create(number: "s1")
+      @table = FactoryGirl.create :table, number: "s1"
       @date = DateTime.now
       user = FactoryGirl.create :user, credentials: "administrator"
       @service1 = FactoryGirl.create :service, table: @table, date: @date

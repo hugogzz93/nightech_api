@@ -23,6 +23,10 @@ RSpec.describe Reservation, type: :model do
 	it { should validate_presence_of(:date) }
 	it { should validate_numericality_of(:quantity).is_greater_than_or_equal_to(1) }
 
+	it { should respond_to(:organization) }
+  	it { should belong_to(:organization)}
+  	it { should validate_presence_of(:organization) }
+
 	describe "default values" do
 		before(:each) do
 			@reservation = FactoryGirl.create :reservation
