@@ -1,17 +1,25 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::RepresentativesController, type: :controller do
+	before(:each) do
+		@organization = FactoryGirl.create :organization
+		@user = FactoryGirl.create :user, organization: @organization
+		@representative = FactoryGirl.create :representative, user: @user, 
+												organization: @organization
+		api_authorization_header @user.auth_token
+	end
 
 	describe "GET #index" do
 		context "when there are many representatives" do
 			before(:each) do
+				4.times { FactoryGirl.create :representative, organization: @organization }
 				4.times { FactoryGirl.create :representative }
 				get :index
 			end
 
-			it "returns all records from the database" do
+			it "returns all records of the organization" do
 				representative_response = json_response
-				expect(representative_response[:representatives].count).to eql Representative.all.count
+				expect(representative_response[:representatives].count).to eql 4
 			end
 
 			it { should respond_with 200 }
@@ -19,8 +27,8 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 	end
 
 	describe "GET #show" do
-		before(:each) do
-			@representative = FactoryGirl.create :representative
+
+		before do
 			get :show, id: @representative.id 
 		end
 
@@ -35,9 +43,7 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 	describe "POST #create" do
 	    context "when is successfully created" do
 	      before(:each) do
-	        user = FactoryGirl.create :user
 	        @representative_attributes = FactoryGirl.attributes_for :representative
-	        api_authorization_header user.auth_token
 	        post :create, { representative: @representative_attributes }
 	      end
 
@@ -51,14 +57,9 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 	end
 
 	describe "PUT/PATCH #update" do
-		before(:each) do
-			@user = FactoryGirl.create :user
-			@representative = FactoryGirl.create :representative, user: @user
-		end
 
 		context "when owner coordinator updates" do
 				before(:each) do
-					api_authorization_header @user.auth_token
 					patch :update, { id: @representative.id, 
 										representative: { name: "New Name" } }, format: :json
 				end
@@ -104,14 +105,9 @@ RSpec.describe Api::V1::RepresentativesController, type: :controller do
 	end
 
 	describe "DELETE #destroy" do
-		before(:each) do
-			@user = FactoryGirl.create :user
-			@representative = FactoryGirl.create :representative, user: @user
-		end
 
 		context "when destroying user is owner" do
 			before do
-				api_authorization_header @user.auth_token
 				delete :destroy, { id: @representative.id }
 			end
 			it { should respond_with 204 }

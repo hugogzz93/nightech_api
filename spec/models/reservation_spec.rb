@@ -27,6 +27,8 @@ RSpec.describe Reservation, type: :model do
   	it { should belong_to(:organization)}
   	it { should validate_presence_of(:organization) }
 
+  	it { should be_valid }
+
 	describe "default values" do
 		before(:each) do
 			@reservation = FactoryGirl.create :reservation
@@ -156,6 +158,33 @@ RSpec.describe Reservation, type: :model do
 			end
 		end
 	end
+
+	describe "organization equality" do
+	    before do
+	      @organization = FactoryGirl.create :organization
+	      @user = FactoryGirl.create :user, organization: @organization
+	    end
+
+	    context "when it has the same organization as owner" do
+	      before do
+	        @reservation = FactoryGirl.build :reservation, user: @user, organization: @organization
+	      end
+	      it "is valid" do
+	        expect(@reservation).to be_valid
+	      end
+	    end
+
+	    context "when it has a differend organization as the owner" do
+	      before do
+	        @otherOrganization = FactoryGirl.create :organization
+	        @reservation = FactoryGirl.build :reservation, user: @user, organization: @otherOrganization
+	      end
+
+	      it "is invalid" do
+	        expect(@reservation).to_not be_valid
+	      end
+	    end
+  	end
 
 	# describe "status change" do
 	# 	before(:each) do

@@ -216,4 +216,32 @@ RSpec.describe Service, type: :model do
       end
     end
   end
+
+  describe "organization equality" do
+    before do
+      @organization = FactoryGirl.create :organization
+      @user = FactoryGirl.create :administrator, organization: @organization
+    end
+
+    context "when it has the same organization as owner" do
+      before do
+        @service = FactoryGirl.build :service, administrator: @user, organization: @organization
+      end
+      it "is valid" do
+        expect(@service).to be_valid
+      end
+    end
+
+    context "when it has a differend organization as the owner" do
+      before do
+        @otherOrganization = FactoryGirl.create :organization
+        @service = FactoryGirl.build :service, administrator: @user, organization: @otherOrganization
+      end
+
+      it "is invalid" do
+        expect(@service).to_not be_valid
+      end
+    end
+  end
+  
 end

@@ -1,7 +1,7 @@
 class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  	devise :database_authenticatable, :registerable,
+	devise :database_authenticatable, :registerable,
         	:recoverable, :rememberable, :trackable, :validatable
 
   validates :auth_token, uniqueness: true
@@ -10,17 +10,13 @@ class User < ActiveRecord::Base
 
   belongs_to :organization
   belongs_to :supervisor, class_name: "User"
-  has_many :subordinates, class_name: "User", 
-                    foreign_key: "supervisor_id"
 
-  has_many :representatives, dependent: :destroy
-  has_many :reservations, dependent: :destroy
-
-  has_many :coordinated_services, class_name: "Service",
-                                 foreign_key: 'coordinator_id', dependent: :destroy
-                                 
-  has_many :administered_services, class_name: "Service",
-                                 foreign_key: 'administrator_id'
+  has_many :representatives,  dependent: :destroy
+  has_many :reservations,     dependent: :destroy
+  has_many :subordinates, class_name: "User", foreign_key: "supervisor_id"
+  has_many :administered_services, class_name: "Service", foreign_key: 'administrator_id'
+  has_many :coordinated_services, class_name: "Service", foreign_key: 'coordinator_id', 
+                                                                          dependent: :destroy
 
 
 	enum credentials: [:coordinator, :administrator, :super]

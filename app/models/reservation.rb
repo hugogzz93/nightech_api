@@ -1,4 +1,5 @@
 class Reservation < ActiveRecord::Base
+	include CommonValidations
 	belongs_to :user
 	belongs_to :representative
 	belongs_to :organization
@@ -58,4 +59,5 @@ class Reservation < ActiveRecord::Base
 	def status_change_handler
 		service.destroy if pending? && service
 	end
+
 end

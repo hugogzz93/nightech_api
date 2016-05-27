@@ -1,8 +1,8 @@
 FactoryGirl.define do
   factory :reservation do
     client { FFaker::Name.name }
-  	organization
 	user
+  	organization { user.organization }
 	representative
 	quantity { rand() * 9 + 1 } # 1-10
 	comment { FFaker::Lorem.phrase }

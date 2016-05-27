@@ -1,4 +1,5 @@
 class Representative < ActiveRecord::Base
+	include CommonValidations
 	belongs_to :user
 	belongs_to :organization
 	has_many :reservations
@@ -14,6 +15,4 @@ class Representative < ActiveRecord::Base
 	def belongs_to!(user)
 		self.update(user_id: user.id)
 	end
-
-
-end
+end 

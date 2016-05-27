@@ -10,7 +10,7 @@ class Service < ActiveRecord::Base
 
 	validates :quantity, numericality: { greater_than_or_equal_to: 1 }
 	validates :date, :quantity, :client, :administrator, :coordinator, :table, presence: true
-	validate :administrator_clearance, :schedule_uniqueness, :ensure_reservation_integrity
+	validate :administrator_clearance, :schedule_uniqueness, :ensure_reservation_integrity, :organization_equality
 	validates :organization, presence: true
 
 	after_destroy :set_reservation_status_pending!
@@ -89,5 +89,11 @@ class Service < ActiveRecord::Base
 	# will change the reservation to pending if the service was destroyed
 	def set_reservation_status_pending!
 		reservation.pending! if reservation.present? && !reservation.pending?
+	end
+
+	def organization_equality
+		if administrator && organization != administrator.organization
+			errors.add(:organization, "Must be the same organization as the creating administrator's.")
+		end
 	end
 end
