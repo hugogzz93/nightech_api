@@ -22,13 +22,13 @@ class Api::V1::ReservationsController < ApplicationController
 
 	def update
 		reservation = Reservation.find(params[:id])
-		if authorized_for_res_update(current_user) && reservation.update(reservation_update_params)
+		if cleared_for_update && reservation.update(reservation_update_params)
 			if reservation_update_params["status"] == "accepted"
 				handle_reservation_acceptance reservation
 			else
 				render json: reservation, status: 200, location: [:api, reservation]
 			end
-		elsif !authorized_for_res_update(current_user)
+		elsif !cleared_for_update
 			head 403
 		else
 			render json: { errors: reservation.errors }, status: 422
@@ -37,7 +37,7 @@ class Api::V1::ReservationsController < ApplicationController
 
 	def destroy
 		reservation = Reservation.find(params[:id])
-		if authorized_for_res_deletion(current_user, reservation)
+		if cleared_for_deletion
 			reservation.destroy
 			head 204
 		else
@@ -46,6 +46,14 @@ class Api::V1::ReservationsController < ApplicationController
 	end
 
 private
+
+	def cleared_for_update
+		same_organization(current_user, reservation) && authorized_for_res_update current_user
+	end
+
+	def cleared_for_deletion
+		same_organization(current_user, reservation) && authorized_for_res_deletion current_user, reservation
+	end
 
 	def reservation_params
 		params.require(:reservation).permit(:client, :representative_id, :quantity, :comment, :date)

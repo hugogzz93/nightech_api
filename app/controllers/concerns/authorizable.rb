@@ -15,6 +15,10 @@ module Authorizable
 	    return false
 	end
 
+	def same_organization?(updater, updatee)
+		updater.organization == updatee.organization
+	end
+
 	# Function: authorized_for_user_update
 	# Parameters: updater, updatee, params
 	# 	updater is the user performing the update
