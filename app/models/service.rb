@@ -23,7 +23,7 @@ class Service < ActiveRecord::Base
 	def self.build_from_reservation(reservation, administrator = nil, table = nil)
 		Service.new(client: reservation.client, coordinator: reservation.user,
 						representative_id: reservation.representative.id, quantity: reservation.quantity,
-						date: reservation.date, reservation_id: reservation.id,
+						date: reservation.date, reservation_id: reservation.id, organization: reservation.organization,
 						administrator: administrator, table: table)
 	end
 
