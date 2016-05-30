@@ -17,6 +17,8 @@ Bundler.require(*Rails.groups)
 
 module NightechApi
   class Application < Rails::Application
+      # config.autoload_paths += %W(\#{config.root}/lib)
+      config.autoload_paths << Rails.root.join('lib')
     
       # don't generate RSpec tests for views and helpers
       config.generators do |g|
@@ -29,7 +31,6 @@ module NightechApi
         g.helper = false
       end
 
-      config.autoload_paths += %W(\#{config.root}/lib)
 
     config.active_record.raise_in_transactional_callbacks = true
   end

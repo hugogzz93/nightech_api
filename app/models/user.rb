@@ -1,24 +1,23 @@
 class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  	devise :database_authenticatable, :registerable,
+	devise :database_authenticatable, :registerable,
         	:recoverable, :rememberable, :trackable, :validatable
 
-	validates :auth_token, uniqueness: true
+  validates :auth_token, uniqueness: true
+	validates :organization, presence: true
+  validate :organization_equality
 	before_create :generate_authentication_token!
 
+  belongs_to :organization
   belongs_to :supervisor, class_name: "User"
-  has_many :subordinates, class_name: "User", 
-                    foreign_key: "supervisor_id"
 
-  has_many :representatives, dependent: :destroy
-  has_many :reservations, dependent: :destroy
-
-  has_many :coordinated_services, class_name: "Service",
-                                 foreign_key: 'coordinator_id', dependent: :destroy
-                                 
-  has_many :administered_services, class_name: "Service",
-                                 foreign_key: 'administrator_id'
+  has_many :representatives,  dependent: :destroy
+  has_many :reservations,     dependent: :destroy
+  has_many :subordinates, class_name: "User", foreign_key: "supervisor_id"
+  has_many :administered_services, class_name: "Service", foreign_key: 'administrator_id'
+  has_many :coordinated_services, class_name: "Service", foreign_key: 'coordinator_id', 
+                                                                          dependent: :destroy
 
 
 	enum credentials: [:coordinator, :administrator, :super]
@@ -52,6 +51,12 @@ class User < ActiveRecord::Base
     service.administrator = self
     service.coordinator = self
     service
+  end
+
+  def organization_equality
+    if supervisor && supervisor.organization != organization
+      errors.add("organization", "User must be in the same organization as supervisor.")
+    end
   end
 
 end

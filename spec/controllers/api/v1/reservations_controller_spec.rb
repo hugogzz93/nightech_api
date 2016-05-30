@@ -8,14 +8,16 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				@user = FactoryGirl.create :user, credentials: "administrator"
 				api_authorization_header @user.auth_token
 				@date = DateTime.new(2015, 06, 13)
-				2.times { FactoryGirl.create :reservation } #Fodder reservationss
+				#Fodder reservationss
+				2.times { FactoryGirl.create :reservation } 
 				# target reservations
-				@reservation1 = FactoryGirl.create :reservation, date: DateTime.new(2015, 06, 13)
-				@reservation2 = FactoryGirl.create :reservation, date: DateTime.new(2015, 06, 13)
+				@reservation1 = FactoryGirl.create :reservation_given_org, date: @date, organization: @user.organization
+				FactoryGirl.create :reservation_given_org, date: @date, organization: @user.organization
+				@reservation2 = FactoryGirl.create :reservation, date: @date
 				get :index, date: @date.utc.to_s, format: :json
 			end
 
-			it "returns all the reservations for that date" do
+			it "returns all the reservations of the same organization for that date" do
 				reservation_response = json_response[:reservations]
 				expect(reservation_response.count).to eql 2
 			end
@@ -37,6 +39,8 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				FactoryGirl.create :reservation
 				# Reservation with wrong date
 				FactoryGirl.create :reservation, user: @user, date: DateTime.new(2020, 03, 03)
+				# reservation with wrong organization
+				FactoryGirl.create :reservation_given_org, organization: @user.organization
 				# Target reservations
 				@reservation1 = FactoryGirl.create :reservation, user: @user, date: @date, visible: true
 				@reservation2 = FactoryGirl.create :reservation, user: @user, date: @date
@@ -55,11 +59,10 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 
 			context "when a service has visibility set to true" do
 				before(:each) do
-					@administrator = FactoryGirl.create :user, credentials: "administrator"
-					@table = Table.create(number: "i1")
+					@administrator = FactoryGirl.create :administrator, organization: @user.organization
+					@table = FactoryGirl.create :table, number: "i1"
 					@service = Service.create_from_reservation @reservation1, @administrator, @table
 					get :index, date: DateTime.new(2015, 3, 13).utc.to_s
-
 				end
 
 				it "returns the json with a table number" do
@@ -71,7 +74,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 			context "when a service has visibility set to false" do
 				before(:each) do
 					@administrator = FactoryGirl.create :user, credentials: "administrator"
-					@table = Table.create(number: "i1")
+					@table = FactoryGirl.create :table, number: "i1"
 					@service = Service.create_from_reservation @reservation2, @administrator, @table
 					get :index, date: DateTime.new(2015, 3, 13).utc.to_s
 				end
@@ -94,13 +97,13 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 
 		context "when successfully created" do
 			before(:each) do
-				@reservation_attributes = FactoryGirl.attributes_for :reservation
+				@reservation_attributes = FactoryGirl.build(:reservation).attributes
 				post :create, reservation: @reservation_attributes
 			end
 
 			it "returns a json with reservation" do
 				reservation_response = json_response[:reservation]
-				expect(reservation_response[:client]).to eql @reservation_attributes[:client]
+				expect(reservation_response[:client]).to eql @reservation_attributes["client"]
 			end
 
 			it "belongs to the creating user" do
@@ -113,7 +116,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 
 		context "when is not created" do
 			before(:each) do
-				@invalid_attributes = FactoryGirl.attributes_for :reservation
+				@invalid_attributes = FactoryGirl.build(:reservation).attributes
 				@invalid_attributes[:quantity] = 0
 				post :create, reservation: @invalid_attributes 
 			end
@@ -137,7 +140,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 		before(:each) do
 			@user = FactoryGirl.create :user
 			@reservation = FactoryGirl.create :reservation, user: @user
-			@table = Table.create(number: "p1")
+			@table = FactoryGirl.create :table, number: "p1"
 		end
 
 		context "when user without administrator clearance updates" do
@@ -152,30 +155,45 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 
 		context "when updating user has administrator clearance" do
 			before do
-				@validUser = FactoryGirl.create :user, credentials: "administrator"
-				api_authorization_header @validUser.auth_token
-				patch :update, { id: @reservation.id, 
-								reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
+				@user = FactoryGirl.create :administrator
+				api_authorization_header @user.auth_token
 			end
 			
-			it "should return a json with the correct reservation" do
-				reservation_response = json_response[:reservation]
-				expect(reservation_response[:id]).to eql @reservation.id
+			context "and belongs to the same organization" do
+				before do
+					@user.update(organization: @reservation.organization)
+					patch :update, { id: @reservation.id, 
+								reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
+				end
+
+				it "should return a json with the correct reservation" do
+					reservation_response = json_response[:reservation]
+					expect(reservation_response[:id]).to eql @reservation.id
+				end
+
+				it "should return a json with the updated attributes" do
+					reservation_response = json_response[:reservation]
+					expect(reservation_response[:status]).to eql "accepted"
+				end
+
+				it { should respond_with 200 }
 			end
 
-			it "should return a json with the updated attributes" do
-				reservation_response = json_response[:reservation]
-				expect(reservation_response[:status]).to eql "accepted"
+			context "and belongs to another organization" do
+				before do
+					patch :update, { id: @reservation.id, 
+								reservation: { status: "accepted", visible: false }, table_number: @table.number }, format: :json
+				end
+				it {should respond_with 403}
 			end
 
-			it { should respond_with 200 }
 		end
 
 		context "when status changes" do
 			
 			before(:each) do
-				@validUser = FactoryGirl.create :user, credentials: "administrator"
-				api_authorization_header @validUser.auth_token
+				@user = FactoryGirl.create :administrator, organization: @reservation.organization
+				api_authorization_header @user.auth_token
 			end
 
 			context "from pending to accepted" do
@@ -265,6 +283,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 
 		context "when destroyer is the owner" do
 			before do
+				@user.update(organization: @reservation.organization)
 				@reservation.belongs_to!(@user)
 				delete :destroy, id: @reservation.id
 			end
@@ -275,10 +294,23 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 		context "when destroyer has administrator clearance" do
 			before do
 				@user.administrator!
-				delete :destroy, id: @reservation.id
 			end
 
-			it { should respond_with 204 }
+			context "and belongs to the same organization" do
+				before do
+					@user.update(organization: @reservation.organization)
+					delete :destroy, id: @reservation.id
+				end
+				it { should respond_with 204 }
+			end
+
+			context "and belongs to another organization" do
+				before do
+					delete :destroy, id: @reservation.id
+				end
+				it { should respond_with 403 }
+			end
+
 		end
 
 		context "when destroyer is not owner and does not have administrator clearance" do

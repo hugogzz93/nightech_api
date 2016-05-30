@@ -1,11 +1,15 @@
 class Reservation < ActiveRecord::Base
+	include CommonValidations
 	belongs_to :user
 	belongs_to :representative
+	belongs_to :organization
 	has_one :service
 
 	validates :client, :user, :date, presence: :true
 	validates :quantity, numericality: {greater_than_or_equal_to: 1}
+	validates :organization, presence: true
 	after_update :status_change_handler
+
 
 	# after_update :invisible! if :pending?
 
@@ -55,4 +59,5 @@ class Reservation < ActiveRecord::Base
 	def status_change_handler
 		service.destroy if pending? && service
 	end
+
 end

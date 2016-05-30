@@ -11,15 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160224063713) do
+ActiveRecord::Schema.define(version: 20160526195507) do
 
-  create_table "representatives", force: :cascade do |t|
-    t.string   "name",       default: ""
-    t.integer  "user_id"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+  create_table "organizations", force: :cascade do |t|
+    t.string  "name"
+    t.boolean "active"
   end
 
+  create_table "representatives", force: :cascade do |t|
+    t.string   "name",            default: ""
+    t.integer  "user_id"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "organization_id"
+  end
+
+  add_index "representatives", ["organization_id"], name: "index_representatives_on_organization_id"
   add_index "representatives", ["user_id"], name: "index_representatives_on_user_id"
 
   create_table "reservations", force: :cascade do |t|
@@ -33,7 +40,10 @@ ActiveRecord::Schema.define(version: 20160224063713) do
     t.boolean  "visible",           default: false
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
+    t.integer  "organization_id"
   end
+
+  add_index "reservations", ["organization_id"], name: "index_reservations_on_organization_id"
 
   create_table "services", force: :cascade do |t|
     t.integer  "coordinator_id",                                         null: false
@@ -49,15 +59,20 @@ ActiveRecord::Schema.define(version: 20160224063713) do
     t.datetime "created_at",                                             null: false
     t.datetime "updated_at",                                             null: false
     t.integer  "table_id",                                  default: 1,  null: false
+    t.integer  "organization_id"
   end
 
+  add_index "services", ["organization_id"], name: "index_services_on_organization_id"
   add_index "services", ["table_id"], name: "index_services_on_table_id"
 
   create_table "tables", force: :cascade do |t|
-    t.string   "number",     null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "number",          null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.integer  "organization_id"
   end
+
+  add_index "tables", ["organization_id"], name: "index_tables_on_organization_id"
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "",          null: false
@@ -77,10 +92,12 @@ ActiveRecord::Schema.define(version: 20160224063713) do
     t.integer  "supervisor_id"
     t.string   "timezone",               default: "Monterrey", null: false
     t.string   "name",                   default: "",          null: false
+    t.integer  "organization_id"
   end
 
   add_index "users", ["auth_token"], name: "index_users_on_auth_token", unique: true
   add_index "users", ["email"], name: "index_users_on_email", unique: true
+  add_index "users", ["organization_id"], name: "index_users_on_organization_id"
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   add_index "users", ["supervisor_id"], name: "index_users_on_supervisor_id"
 

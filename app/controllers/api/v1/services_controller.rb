@@ -3,7 +3,7 @@ class Api::V1::ServicesController < ApplicationController
 
 	def index
 		date = DateTime.parse(params[:date])
-		services = Service.by_date(date)
+		services = Service.by_date(date).where(organization: current_user.organization)
 		if has_clearance?(current_user, 'administrator')
 			render json: services, status: 200
 		else
@@ -13,6 +13,7 @@ class Api::V1::ServicesController < ApplicationController
 
 	def create
 		service = current_user.build_service(service_params)
+		service.organization = current_user.organization
 		if authorized_for_service_creation(current_user) && service.save
 			render json: service, status: 201, location: [:api, service]
 		elsif !authorized_for_service_creation current_user
@@ -24,9 +25,9 @@ class Api::V1::ServicesController < ApplicationController
 
 	def update
 		service = Service.find(params[:id])
-		if authorized_for_service_update(current_user) && service.update(service_update_params)
+		if cleared_for_update(current_user, service) && service.update(service_update_params)
 			render json: service, status: 200, location: [:api, service]
-		elsif !authorized_for_service_creation current_user
+		elsif !cleared_for_update(current_user, service)
 			head 403
 		else
 			render json: { errors: service.errors }, status: 422
@@ -35,7 +36,7 @@ class Api::V1::ServicesController < ApplicationController
 
 	def destroy
 		service = Service.find(params[:id])
-		if authorized_for_service_deletion(current_user, service)
+		if cleared_for_deletion(current_user, service)
 			service.destroy
 			head 204
 		else
@@ -44,6 +45,14 @@ class Api::V1::ServicesController < ApplicationController
 	end
 
 	private
+
+		def cleared_for_update(user, service)
+			same_organization?(user, service) && authorized_for_service_update(user)
+		end
+
+		def cleared_for_deletion(user, service)
+			same_organization?(user, service) && authorized_for_service_deletion(user, service)
+		end
 
 		def service_params
 			params.require(:service).permit(:representative_id, :reservation_id, :client, :comment, :quantity, :ammount, :date, :status, :table_id)
