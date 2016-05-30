@@ -1,7 +1,11 @@
 FactoryGirl.define do
+
+	sequence :table_number do |n|
+	    "#{n}"
+  	end
   factory :table do
   	organization
-    number "a1"
+    number { generate(:table_number) }
   end
 
 end

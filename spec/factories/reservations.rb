@@ -11,7 +11,7 @@ FactoryGirl.define do
 	# visible false
   end
 
-  factory :reservation_diff_org, class: Reservation do
+  factory :reservation_given_org, class: Reservation do
     client { FFaker::Name.name }
   	organization
 	user { FactoryGirl.create :user, organization: organization }

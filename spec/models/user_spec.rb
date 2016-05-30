@@ -5,6 +5,7 @@ RSpec.describe User, type: :model do
 
   subject { @user }
 
+  it { should belong_to(:organization)}
   it { should respond_to(:email) }
   it { should respond_to(:name) }
   it { should respond_to(:password) }
@@ -19,7 +20,6 @@ RSpec.describe User, type: :model do
   it { should have_many(:coordinated_services) }
   it { should have_many(:administered_services) }
 
-  it { should belong_to(:organization)}
 
   it { should be_valid }
 
@@ -96,6 +96,33 @@ RSpec.describe User, type: :model do
       @user.destroy
       representatives.each do |representative|
         expect(representative.find(representative)).to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+  end
+
+  describe "organization equality" do
+    before do
+      @organization = FactoryGirl.create :organization
+      @user = FactoryGirl.create :administrator, organization: @organization
+    end
+
+    context "when it has the same organization as owner" do
+      before do
+        @coordinator = FactoryGirl.create :coordinator, organization: @organization, supervisor: @user
+      end
+      it "is valid" do
+        expect(@coordinator).to be_valid
+      end
+    end
+
+    context "when it has a differend organization as the owner" do
+      before do
+        @otherOrganization = FactoryGirl.create :organization
+        @coordinator = FactoryGirl.build :coordinator, organization: @otherOrganization, supervisor: @user
+      end
+
+      it "is invalid" do
+        expect(@coordinator).to_not be_valid
       end
     end
   end

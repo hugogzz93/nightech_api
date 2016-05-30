@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
 
   validates :auth_token, uniqueness: true
 	validates :organization, presence: true
+  validate :organization_equality
 	before_create :generate_authentication_token!
 
   belongs_to :organization
@@ -50,6 +51,12 @@ class User < ActiveRecord::Base
     service.administrator = self
     service.coordinator = self
     service
+  end
+
+  def organization_equality
+    if supervisor && supervisor.organization != organization
+      errors.add("organization", "User must be in the same organization as supervisor.")
+    end
   end
 
 end

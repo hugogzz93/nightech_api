@@ -11,8 +11,8 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				#Fodder reservationss
 				2.times { FactoryGirl.create :reservation } 
 				# target reservations
-				@reservation1 = FactoryGirl.create :reservation_diff_org, date: @date, organization: @user.organization
-				FactoryGirl.create :reservation_diff_org, date: @date, organization: @user.organization
+				@reservation1 = FactoryGirl.create :reservation_given_org, date: @date, organization: @user.organization
+				FactoryGirl.create :reservation_given_org, date: @date, organization: @user.organization
 				@reservation2 = FactoryGirl.create :reservation, date: @date
 				get :index, date: @date.utc.to_s, format: :json
 			end
@@ -40,7 +40,7 @@ RSpec.describe Api::V1::ReservationsController, type: :controller do
 				# Reservation with wrong date
 				FactoryGirl.create :reservation, user: @user, date: DateTime.new(2020, 03, 03)
 				# reservation with wrong organization
-				FactoryGirl.create :reservation_diff_org, organization: @user.organization
+				FactoryGirl.create :reservation_given_org, organization: @user.organization
 				# Target reservations
 				@reservation1 = FactoryGirl.create :reservation, user: @user, date: @date, visible: true
 				@reservation2 = FactoryGirl.create :reservation, user: @user, date: @date
