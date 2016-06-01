@@ -21,7 +21,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 		end
 
 		it "should render a json containing all the subordinate users' attributes" do
-			expect(@user_response[:users][0][:email]).to eql @subordinate_users.first.email
+			expect(@user_response[:users][0][:email]).to eql @subordinate_users.last.email
 		end
 
 		it { should respond_with 200 }
