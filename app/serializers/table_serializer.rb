@@ -1,5 +1,5 @@
 class TableSerializer < ActiveModel::Serializer
-  attributes :id, :number, :services
+  attributes :id, :number, :services, :x, :y
 
   def services
   	date = serialization_options[:date]

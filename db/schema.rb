@@ -11,7 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160526195507) do
+ActiveRecord::Schema.define(version: 20160604174401) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "organizations", force: :cascade do |t|
     t.string  "name"
@@ -26,8 +29,8 @@ ActiveRecord::Schema.define(version: 20160526195507) do
     t.integer  "organization_id"
   end
 
-  add_index "representatives", ["organization_id"], name: "index_representatives_on_organization_id"
-  add_index "representatives", ["user_id"], name: "index_representatives_on_user_id"
+  add_index "representatives", ["organization_id"], name: "index_representatives_on_organization_id", using: :btree
+  add_index "representatives", ["user_id"], name: "index_representatives_on_user_id", using: :btree
 
   create_table "reservations", force: :cascade do |t|
     t.string   "client",                            null: false
@@ -43,7 +46,7 @@ ActiveRecord::Schema.define(version: 20160526195507) do
     t.integer  "organization_id"
   end
 
-  add_index "reservations", ["organization_id"], name: "index_reservations_on_organization_id"
+  add_index "reservations", ["organization_id"], name: "index_reservations_on_organization_id", using: :btree
 
   create_table "services", force: :cascade do |t|
     t.integer  "coordinator_id",                                         null: false
@@ -62,17 +65,19 @@ ActiveRecord::Schema.define(version: 20160526195507) do
     t.integer  "organization_id"
   end
 
-  add_index "services", ["organization_id"], name: "index_services_on_organization_id"
-  add_index "services", ["table_id"], name: "index_services_on_table_id"
+  add_index "services", ["organization_id"], name: "index_services_on_organization_id", using: :btree
+  add_index "services", ["table_id"], name: "index_services_on_table_id", using: :btree
 
   create_table "tables", force: :cascade do |t|
-    t.string   "number",          null: false
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.string   "number",                      null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.integer  "organization_id"
+    t.integer  "x",               default: 0, null: false
+    t.integer  "y",               default: 0, null: false
   end
 
-  add_index "tables", ["organization_id"], name: "index_tables_on_organization_id"
+  add_index "tables", ["organization_id"], name: "index_tables_on_organization_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "",          null: false
@@ -95,10 +100,10 @@ ActiveRecord::Schema.define(version: 20160526195507) do
     t.integer  "organization_id"
   end
 
-  add_index "users", ["auth_token"], name: "index_users_on_auth_token", unique: true
-  add_index "users", ["email"], name: "index_users_on_email", unique: true
-  add_index "users", ["organization_id"], name: "index_users_on_organization_id"
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
-  add_index "users", ["supervisor_id"], name: "index_users_on_supervisor_id"
+  add_index "users", ["auth_token"], name: "index_users_on_auth_token", unique: true, using: :btree
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["organization_id"], name: "index_users_on_organization_id", using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+  add_index "users", ["supervisor_id"], name: "index_users_on_supervisor_id", using: :btree
 
 end

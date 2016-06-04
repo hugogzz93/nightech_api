@@ -6,6 +6,9 @@ FactoryGirl.define do
   factory :table do
   	organization
     number { generate(:table_number) }
+    x { (rand() * 100 + 1).round }
+    y { (rand() * 100 + 1).round }
+
   end
 
 end
