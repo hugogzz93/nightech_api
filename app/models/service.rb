@@ -21,8 +21,9 @@ class Service < ActiveRecord::Base
 	# attributes into the service, also uses the 
 	# reservation's id for the services' association.
 	def self.build_from_reservation(reservation, administrator = nil, table = nil)
+		representative_id = reservation.representative ? reservation.representative.id : nil
 		Service.new(client: reservation.client, coordinator: reservation.user,
-						representative_id: reservation.representative.id, quantity: reservation.quantity,
+						representative_id: representative_id, quantity: reservation.quantity,
 						date: reservation.date, reservation_id: reservation.id, organization: reservation.organization,
 						administrator: administrator, table: table)
 	end
