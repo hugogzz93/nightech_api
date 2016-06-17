@@ -2,7 +2,8 @@ Rails.application.configure do
 
     config.action_dispatch.tld_length = 0
   # Settings specified here will take precedence over those in config/application.rb.
-
+  config.secret_key_base = ENV["secret_key_base"]
+  config.secret_token = ENV["secret_token"]
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.

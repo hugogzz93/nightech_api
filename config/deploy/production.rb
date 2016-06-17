@@ -43,3 +43,7 @@ server 'example.com', user: 'deploy', roles: %w{web app}, my_property: :my_value
 #     auth_methods: %w(publickey password)
 #     # password: 'please use keys'
 #   }
+
+
+config.secret_key_base = ENV["secret_key_base"]
+config.secret_token = ENV["secret_token"]
