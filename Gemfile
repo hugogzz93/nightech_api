@@ -7,7 +7,6 @@ gem 'rails', '4.2.5'
 gem 'pg'
     gem 'rails_12factor'
 
-
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -57,6 +56,8 @@ group :development, :test do
   gem 'byebug'
   gem 'factory_girl_rails'
   gem 'ffaker'
+  gem 'capistrano', '~> 3.3.0'
+  gem 'capistrano-figaro-yml', '~> 1.0.2'
 end
 
 group :development do
