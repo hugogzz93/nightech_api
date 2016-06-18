@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Api::V1::RepresentativesController, type: :controller do
+RSpec.describe RepresentativesController, type: :controller do
 	before(:each) do
 		@organization = FactoryGirl.create :organization
 		@otherOrganization = FactoryGirl.create :organization

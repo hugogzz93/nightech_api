@@ -1,4 +1,4 @@
-class Api::V1::TablesController < ApplicationController
+class TablesController < ApplicationController
 	def index
 		date = DateTime.parse(params[:date])
 		tables = Table.all

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Api::V1::ServicesController, type: :controller do
+RSpec.describe ServicesController, type: :controller do
 	
 	describe 'GET #index' do
 		before(:each) do

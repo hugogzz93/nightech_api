@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Api::V1::ReservationsController, type: :controller do
+RSpec.describe ReservationsController, type: :controller do
 
 	describe "GET #index" do
 		context "when user has administrator clearance" do

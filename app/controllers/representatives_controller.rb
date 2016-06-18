@@ -1,4 +1,4 @@
-class Api::V1::RepresentativesController < ApplicationController
+class RepresentativesController < ApplicationController
 	before_action :authenticate_with_token!, only: [:create]
 	respond_to :json
 
@@ -19,7 +19,7 @@ class Api::V1::RepresentativesController < ApplicationController
 		representative = current_user.representatives.build(representative_params)
 		representative.organization = current_user.organization
 		if representative.save
-	      	render json: representative, status: 201, location: [:api, representative]
+	      	render json: representative, status: 201, location: [representative]
 		else
 	     	render json: { errors: representative.errors }, status: 422
 		end
@@ -29,7 +29,7 @@ class Api::V1::RepresentativesController < ApplicationController
 		representative = Representative.find(params[:id])
 		if cleared_for_update(current_user, representative) && 
 		   representative.update(representative_params)
-			render json: representative, status: 200, location: [:api, representative]
+			render json: representative, status: 200, location: [representative]
 		elsif !cleared_for_update(current_user, representative)
 		    head 403
 		else

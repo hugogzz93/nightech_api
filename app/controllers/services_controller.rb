@@ -1,4 +1,4 @@
-class Api::V1::ServicesController < ApplicationController
+class ServicesController < ApplicationController
 	respond_to :json
 
 	def index
@@ -15,7 +15,7 @@ class Api::V1::ServicesController < ApplicationController
 		service = current_user.build_service(service_params)
 		service.organization = current_user.organization
 		if authorized_for_service_creation(current_user) && service.save
-			render json: service, status: 201, location: [:api, service]
+			render json: service, status: 201, location: [ service]
 		elsif !authorized_for_service_creation current_user
 			head 403
 		else
@@ -26,7 +26,7 @@ class Api::V1::ServicesController < ApplicationController
 	def update
 		service = Service.find(params[:id])
 		if cleared_for_update(current_user, service) && service.update(service_update_params)
-			render json: service, status: 200, location: [:api, service]
+			render json: service, status: 200, location: [ service]
 		elsif !cleared_for_update(current_user, service)
 			head 403
 		else

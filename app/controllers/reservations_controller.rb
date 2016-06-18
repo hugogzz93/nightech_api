@@ -1,4 +1,4 @@
-class Api::V1::ReservationsController < ApplicationController
+class ReservationsController < ApplicationController
 	respond_to :json
 	
 	def index
@@ -15,7 +15,7 @@ class Api::V1::ReservationsController < ApplicationController
 		reservation = current_user.reservations.build(reservation_params)
 		reservation.organization = current_user.organization
 		if reservation.save
-			render json: reservation, status: 201, location: [:api, reservation]
+			render json: reservation, status: 201, location: [ reservation]
 		else
 			render json: { errors: reservation.errors }, status: 422
 		end
@@ -27,7 +27,7 @@ class Api::V1::ReservationsController < ApplicationController
 			if reservation_update_params["status"] == "accepted"
 				handle_reservation_acceptance reservation
 			else
-				render json: reservation, status: 200, location: [:api, reservation]
+				render json: reservation, status: 200, location: [ reservation]
 			end
 		elsif !cleared_for_update(current_user, reservation)
 			head 403
@@ -68,7 +68,7 @@ private
 		service = Service.create_from_reservation(reservation, current_user, 
 			Table.where(number: params[:table_number]).first) 
 		if !service.new_record?
-			render json: reservation, status: 200, location: [:api, reservation]
+			render json: reservation, status: 200, location: [ reservation]
 		else 
 			reservation.pending!
 			render json: { errors: service.errors }, status: 422
