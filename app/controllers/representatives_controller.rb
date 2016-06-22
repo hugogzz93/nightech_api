@@ -12,7 +12,7 @@ class RepresentativesController < ApplicationController
 	end
 
 	def index
-		respond_with Representative.all.where(organization: current_user.organization)
+		render json: Representative.all.where(organization: current_user.organization)
 	end
 
 	def create
