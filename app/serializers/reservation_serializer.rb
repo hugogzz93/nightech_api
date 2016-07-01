@@ -1,5 +1,6 @@
+
 class ReservationSerializer < ActiveModel::Serializer
-  attributes :id, :client, :user_id, :representative_id, :quantity, :comment, :date, :status, :visible, :coordinator_name
+  attributes :id, :client, :user_id, :representative_id, :quantity, :comment, :date, :status, :visible, :coordinator_name, :representative_name
   has_one :table_number
 
   	def table_number
@@ -16,5 +17,9 @@ class ReservationSerializer < ActiveModel::Serializer
 
     def coordinator_name
       object.user.name
+    end
+
+    def representative_name
+      object.representative.name
     end
 end
