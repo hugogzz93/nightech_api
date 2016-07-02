@@ -53,7 +53,7 @@ private
 	end
 
 	def cleared_for_deletion(user, reservation)
-		same_organization?(user, reservation) && authorized_for_res_deletion(user, reservation)
+		same_organization?(user, reservation) && authorized_for_res_deletion(user, reservation) && reservation.pending?
 	end
 
 	def reservation_params
