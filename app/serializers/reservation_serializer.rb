@@ -20,6 +20,6 @@ class ReservationSerializer < ActiveModel::Serializer
     end
 
     def representative_name
-      object.representative.name
+      object.representative.name if object.representative
     end
 end
