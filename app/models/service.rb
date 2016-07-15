@@ -36,8 +36,20 @@ class Service < ActiveRecord::Base
 	end
 
 	# Will return all services on that day
-	def self.by_date(date)
-		Service.where(date: date.beginning_of_day..date.end_of_day)
+	def self.by_date(date, scope)
+		Service.where(date: date.method("beginning_of_#{scope}").call()..date.method("end_of_#{scope}").call())
+	end
+
+	def self.by_week(date)
+		Service.where(date: date.beginning_of_week..date.end_of_week)
+	end
+
+	def self.by_month(date)
+		Service.where(date: date.beginning_of_month..date.end_of_month)
+	end
+
+	def self.by_year(date)
+		Service.where(date: date.beginning_of_year..date.end_of_year)
 	end
 
 
@@ -75,7 +87,7 @@ class Service < ActiveRecord::Base
 	# There must not be two services using the same table at the same time
 	def schedule_uniqueness
 		errors.add(:date, "Table is already occupied for that date.") if
-											 Service.by_date(date).where(table_id: table.id, status: "incomplete").where.not(id: id).any? if
+											 Service.by_date(date, "day").where(table_id: table.id, status: "incomplete").where.not(id: id).any? if
 											 date.present? && table.present?
 	end
 

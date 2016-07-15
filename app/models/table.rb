@@ -9,6 +9,6 @@ class Table < ActiveRecord::Base
 	# returns true if there is a service associated with the
 	# table on the given date
 	def occupied?(date)
-		Service.by_date(date).where(table_id: id, status: "incomplete").any?
+		Service.by_date(date, "day").where(table_id: id, status: "incomplete").any?
 	end
 end

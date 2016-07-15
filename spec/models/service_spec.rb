@@ -139,7 +139,65 @@ RSpec.describe Service, type: :model do
     end
 
     it "returns a json with the services on the indicated date" do
-      expect(Service.by_date(DateTime.new(2015, 1, 12))).to match_array([@service2, @service3])
+      expect(Service.by_date(DateTime.new(2015, 1, 12), "day")).to match_array([@service2, @service3])
+    end
+  end
+
+  describe ".by_week" do
+    before(:each) do
+      @date = DateTime.new(2015, 03, 30, 3, 12, 15).beginning_of_week;
+      @table1 = FactoryGirl.create :table, number: 11
+      @table2 = FactoryGirl.create :table, number: 12
+      @table3 = FactoryGirl.create :table, number: 13
+      @table4 = FactoryGirl.create :table, number: 14
+      @service1 = FactoryGirl.create :service, date: @date.prev_week, table: @table1
+      @service2 = FactoryGirl.create :service, date: @date.prev_week, table: @table2
+      @service3 = FactoryGirl.create :service, date: @date, table: @table1
+      @service4 = FactoryGirl.create :service, date: @date, table: @table2
+      @service5 = FactoryGirl.create :service, date: @date.end_of_week, table: @table1
+    end
+
+    it "returns a json with the services on the indicated week" do
+      expect(Service.by_date(@date, "week")).to match_array([@service3, @service4, @service5])
+    end
+  end
+
+  describe ".by_month" do
+    before(:each) do
+      @date = DateTime.new(2015, 03, 30, 3, 12, 15).beginning_of_week;
+      @table1 = FactoryGirl.create :table, number: 11
+      @table2 = FactoryGirl.create :table, number: 12
+      @table3 = FactoryGirl.create :table, number: 13
+      @table4 = FactoryGirl.create :table, number: 14
+      @service1 = FactoryGirl.create :service, date: @date.prev_month, table: @table1
+      @service2 = FactoryGirl.create :service, date: @date.prev_month, table: @table2
+      @service3 = FactoryGirl.create :service, date: @date, table: @table1
+      @service4 = FactoryGirl.create :service, date: @date.prev_week, table: @table2
+      @service5 = FactoryGirl.create :service, date: @date.end_of_week, table: @table1
+    end
+
+    it "returns a json with the services on the indicated month" do
+      expect(Service.by_date(@date, "month")).to match_array([@service3, @service4])
+    end
+  end
+
+  describe ".by_year" do
+    before(:each) do
+      @date = DateTime.new(2015, 03, 30, 3, 12, 15).beginning_of_week;
+      @table1 = FactoryGirl.create :table, number: 11
+      @table2 = FactoryGirl.create :table, number: 12
+      @table3 = FactoryGirl.create :table, number: 13
+      @table4 = FactoryGirl.create :table, number: 14
+      @service1 = FactoryGirl.create :service, date: @date.prev_year, table: @table1
+      @service2 = FactoryGirl.create :service, date: @date.prev_month, table: @table2
+      @service3 = FactoryGirl.create :service, date: @date, table: @table1
+      @service4 = FactoryGirl.create :service, date: @date.beginning_of_month, table: @table2
+      @service5 = FactoryGirl.create :service, date: @date.next_month, table: @table1
+      @service6 = FactoryGirl.create :service, date: @date.next_year, table: @table1
+    end
+
+    it "returns a json with the services on the indicated year" do
+      expect(Service.by_date(@date, "year")).to match_array([@service2, @service3, @service4, @service5])
     end
   end
 

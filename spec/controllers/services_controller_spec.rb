@@ -20,7 +20,6 @@ RSpec.describe ServicesController, type: :controller do
 			@serviceWrongOrg = FactoryGirl.create :service, date: @date
 			@otherService1 = FactoryGirl.create :service_given_org, table: table3, organization: @organization
 			@otherService2 = FactoryGirl.create :service_given_org, table: table4, organization: @organization
-
 		end
 
 		context "when user has administrator clearance" do

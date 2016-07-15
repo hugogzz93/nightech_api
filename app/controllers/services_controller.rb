@@ -3,7 +3,8 @@ class ServicesController < ApplicationController
 
 	def index
 		date = DateTime.parse(params[:date])
-		services = Service.by_date(date).where(organization: current_user.organization)
+		scope = params[:scope] == nil ? "day" : params[:scope]
+		services = Service.by_date(date, scope).where(organization: current_user.organization)
 		if has_clearance?(current_user, 'administrator')
 			render json: services, status: 200
 		else
