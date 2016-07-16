@@ -14,6 +14,7 @@ class Service < ActiveRecord::Base
 	validates :organization, presence: true
 
 	after_destroy :set_reservation_status_pending!
+	before_save :set_seated_completed_timestamp!, if: :status_changed?
 
 	enum status: [:incomplete, :seated, :complete]
 
@@ -108,5 +109,17 @@ class Service < ActiveRecord::Base
 		if administrator && organization != administrator.organization
 			errors.add(:organization, "Must be the same organization as the creating administrator's.")
 		end
+	end
+
+
+	# Function: set_seated_completed_timestamp
+	# Parameters: 
+	
+	# Description: 
+	# 	will set a timestamp with current time if
+	# 	status is seated or completed
+	def set_seated_completed_timestamp!
+		self.seated_time = DateTime.now() if status_was == "incomplete" && status == "seated"
+		self.completed_time = DateTime.now() if status_was == "seated" && status == "complete"
 	end
 end

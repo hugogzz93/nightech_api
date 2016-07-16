@@ -16,7 +16,7 @@ class ServicesController < ApplicationController
 		service = current_user.build_service(service_params)
 		service.organization = current_user.organization
 		if authorized_for_service_creation(current_user) && service.save
-			render json: service, status: 201, location: [ service]
+			render json: service, status: 201, location: [service]
 		elsif !authorized_for_service_creation current_user
 			head 403
 		else
