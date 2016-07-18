@@ -2,7 +2,7 @@ class UsersController < ApplicationController
 	respond_to :json
 
 	def index
-		render json: current_user.super? ? User.where(organization: current_user.organization).where.not(id: current_user.id) : current_user.subordinates, status: 200, location: [ current_user]
+		render json: current_user.super? ? User.where(organization: current_user.organization) : current_user.subordinates, status: 200, location: [ current_user]
 	end
 
 	def show
