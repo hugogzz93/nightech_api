@@ -87,9 +87,12 @@ class Service < ActiveRecord::Base
 
 	# There must not be two services using the same table at the same time
 	def schedule_uniqueness
-		errors.add(:date, "Table is already occupied for that date.") if
+		if incomplete?
+			errors.add(:date, "Table is already occupied for that date.") if
 											 Service.by_date(date, "day").where(table_id: table.id, status: "incomplete").where.not(id: id).any? if
 											 date.present? && table.present?
+			
+		end
 	end
 
 	# if the service has a reservation, it must not change the values
