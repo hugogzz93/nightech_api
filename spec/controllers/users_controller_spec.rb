@@ -6,7 +6,7 @@ RSpec.describe UsersController, type: :controller do
 		before(:each) do
 			@user = FactoryGirl.create :super
 			@subordinate_users = FactoryGirl.create_list(:coordinator, 5, supervisor_id: @user.id, organization: @user.organization)
-			FactoryGirl.create :user # user from other organizaiton
+			FactoryGirl.create :user # user from other organization
 			api_authorization_header @user.auth_token
 			get :index, format: :json
 			@user_response = json_response
@@ -17,7 +17,7 @@ RSpec.describe UsersController, type: :controller do
 		end
 
 		it "should not show users of other organizations" do
-			expect(@user_response[:users].count).to eql 5
+			expect(@user_response[:users].count).to eql User.where(organization: @user.organization).count
 		end
 
 		it "should render a json containing all the subordinate users' attributes" do

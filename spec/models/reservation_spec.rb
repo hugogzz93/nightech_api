@@ -45,55 +45,6 @@ RSpec.describe Reservation, type: :model do
 		end
 	end
 
-	describe "service association" do
-		before(:each) do
-			@user = FactoryGirl.create :user
-			@reservation = FactoryGirl.create :reservation, user: @user
-		end
-
-		context "when status is set to pending" do
-			xit "should have no service assigned" do
-				# pending "service creation"
-			end
-
-			xit "should have visibility set to false" do
-				# pending "service creation"
-			end
-		end
-
-		context "when status is set to rejected" do
-
-			xit "should have no service assigned" do
-				# pending "service creation"
-			end
-
-			xit "should have visibility set to false" do
-				# pending "service creation"
-			end
-		end
-
-		context "when status is set to accepted" do
-			xit "should have a service assigned" do
-				# pending "service creation"
-			end
-
-			xit "service should have the same client" do
-				# pending "service creation"
-			end
-
-			xit "service should have same user" do
-				# pending "service creation"
-			end
-
-			xit "service should have same representative" do
-			end
-
-			xit "service should have same quantity" do
-				# pending "service creation"
-			end
-		end
-	end
-
 	describe ".by_date" do
 		before(:each) do
 			@reservation1 = FactoryGirl.create :reservation, date: DateTime.new(2015, 03, 30, 3, 12, 15)

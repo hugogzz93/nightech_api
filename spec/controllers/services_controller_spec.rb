@@ -63,7 +63,7 @@ RSpec.describe ServicesController, type: :controller do
 			@date = DateTime.new(2015, 06, 13)
 			@service_attributes = FactoryGirl.build( :service, 
 								coordinator: nil, administrator: nil, reservation: nil, date: @date,
-								table: @table, status: "complete", organization: nil).attributes
+								table: @table, organization: nil).attributes
 		end
 
 		context "when user has administrator clearance" do
@@ -75,7 +75,6 @@ RSpec.describe ServicesController, type: :controller do
 				before do
 					post :create, service: @service_attributes, format: :json
 					@service_response = json_response[:service]
-
 				end
 
 				it "should return a json with the created service" do
@@ -104,7 +103,7 @@ RSpec.describe ServicesController, type: :controller do
 			context "and it failed to be created" do
 				before do
 					# another service occupies the table
-					@otherService = FactoryGirl.create :service, table: @table, date: @date
+					@otherService = FactoryGirl.create :service_given_org, table: @table, date: @date, organization: @user.organization
 					post :create, service: @service_attributes, format: :json
 				end
 
