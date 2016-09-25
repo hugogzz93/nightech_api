@@ -26,21 +26,19 @@ RSpec.describe ServicesController, type: :controller do
 			before do
 				@user.administrator!
 				get :index, date: @date.utc.to_s, format: :json
+				@service_response = json_response[:services]
 			end
 
 			it "returns a json with the correct ammount of services" do
-				service_response = json_response[:services]
-				expect(service_response.count).to eql 3
+				expect(@service_response.count).to eql 3
 			end
 
 			it "returns the correct services in the json" do
-				service_response = json_response[:services]
-				expect(service_response[0][:client]).to eql @service.client
+				expect(@service_response[0][:client]).to eql @service.client
 			end
 
 			it "retuns its assigned table number" do
-				service_response = json_response[:services]
-				expect(service_response[0][:table_number]).to eql @service.table.number
+				expect(@service_response[0][:table_number]).to eql @service.table.number
 			end
 
 			it { should respond_with 200 }
@@ -162,6 +160,7 @@ RSpec.describe ServicesController, type: :controller do
 							end
 
 							it "should respond with a json including the new table" do
+								
 								service_response = json_response[:service]
 								expect(service_response[:table_number]).to eql @table.number
 							end

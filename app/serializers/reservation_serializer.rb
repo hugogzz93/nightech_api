@@ -4,7 +4,7 @@ class ReservationSerializer < ActiveModel::Serializer
   has_one :table_number
 
   	def table_number
-  		object.service.table.number if object.service && visible
+  		object.service.table.number if object.service && (visible || serialization_options[:administrator])
   	end
 
   	def status

@@ -6,7 +6,8 @@ class Organization < ActiveRecord::Base
 	has_many :representatives, dependent: :destroy
 	has_many :tables, dependent: :destroy
 
-	validates :name, :map, presence: true, uniqueness: true
+	validates :name, presence: true, uniqueness: true
+	validates :map, presence: true
 	validate :map_regex
 
 	def map_regex

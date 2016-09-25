@@ -15,18 +15,16 @@ RSpec.describe ReservationsController, type: :controller do
 				FactoryGirl.create :reservation_given_org, date: @date, organization: @user.organization
 				@reservation2 = FactoryGirl.create :reservation, date: @date
 				get :index, date: @date.utc.to_s, format: :json
+				@reservation_response = json_response[:reservations]
 			end
 
 			it "returns all the reservations of the same organization for that date" do
-				reservation_response = json_response[:reservations]
-				expect(reservation_response.count).to eql 2
+				expect(@reservation_response.count).to eql 2
 			end
 
 			it "returns the correct reservations" do
-				reservation_response = json_response[:reservations]
-				expect(reservation_response[0][:client]).to eql @reservation1.client
+				expect(@reservation_response[0][:client]).to eql @reservation1.client
 			end
-
 			it { should respond_with 200 }
 		end
 

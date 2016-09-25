@@ -5,7 +5,7 @@ class ReservationsController < ApplicationController
 		date = DateTime.parse(params[:date])
 		reservations = Reservation.by_date(date)
 		if has_clearance?(current_user, 'administrator')
-			render json: reservations.where(organization: current_user.organization), status: 200
+			render json: reservations.where(organization: current_user.organization), administrator: true, status: 200
 		else
 			render json: reservations.where(user_id: current_user.id), status: 200
 		end
